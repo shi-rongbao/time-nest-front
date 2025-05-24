@@ -1,0 +1,134 @@
+body {    font-family: 'Excalifont', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;    background: linear-gradient(135deg, #e3f2fd, #bbdefb);    margin: 0;    padding: 0;    min-height: 100vh;    /* 添加以下属性以居中显示内容 */    display: flex;    justify-content: center;    align-items: center;  }
+  
+  .login-register-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    width: 450px; /* 适当增大容器宽度 */
+    margin: 10px 0;
+  }
+  
+  h2 {    text-align: center;    color: #1976d2; /* 更换标题颜色 */    font-size: 2.2rem;    margin-bottom: 2.5rem;    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);    font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", sans-serif !important;  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input {
+    margin-bottom: 1.8rem;
+    padding: 1.1rem;
+    border: 2px solid #bbdefb; /* 更换边框颜色 */
+    border-radius: 10px;
+    font-size: 1.05rem;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+  }
+  
+  button {
+    padding: 1.1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  
+  .action-button {
+    background-color: #1976d2;
+    color: white;
+  }
+  
+  .action-button:hover {
+    background-color: #1565c0; /* 更换悬停颜色 */
+  }
+  
+  .toggle-button {
+    background-color: #607d8b;
+    margin-top: 1.8rem;
+  }
+  
+  .toggle-button:hover {
+    background-color: #546e7a; /* 更换悬停颜色 */
+  }
+  
+  .register-tip {
+    color: #607d8b;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 1.8rem;
+  }
+  
+  form input,
+  form button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .toggle-container {
+    text-align: center;
+    margin-top: 1.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .styled-link {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    background-color: #607d8b;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .styled-link:hover {
+    background-color: #546e7a;
+  }
+  
+  /* 调整验证码输入框和按钮容器的样式 */
+  form div {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.8rem;
+    align-items: stretch; /* 确保子元素高度一致 */
+  }
+  
+  form div input {
+    margin-bottom: 0; /* 移除单独的底部外边距 */
+  }
+  
+  /* 调整发送验证码按钮的大小和边框 */
+  .small-action-button {
+    padding: 1.1rem;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    border: 2px solid transparent; /* 添加透明边框，保持和输入框高度一致 */
+    box-sizing: border-box; /* 确保内边距和边框包含在元素的总宽度和高度内 */
+  }
+  
+  .home-container {
+    /* Remove these properties that are constraining the width */
+    /* background-color: rgba(255, 255, 255, 0.98); */
+    /* padding: 2.5rem; */
+    /* border-radius: 15px; */
+    /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); */
+    /* width: 500px; */
+  }
+  
+  .home-container h2 {    color: #2196f3; /* 调整标题颜色 */    font-size: 2.5rem; /* 调整标题字体大小 */    margin-bottom: 2rem; /* 调整标题底部外边距 */    font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", sans-serif !important;  }
+  
+  .home-container p {
+    color: #424242; /* 调整段落文字颜色 */
+    font-size: 1.1rem; /* 调整段落字体大小 */
+    line-height: 1.6; /* 调整行高 */
+  }
+  

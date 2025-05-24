@@ -1,70 +1,29 @@
-# Getting Started with Create React App
+# Time Nest (拾光纪)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Time Nest (拾光纪) 是一个时间胶囊应用，旨在帮助用户记录和分享珍贵的时光。
 
-## Available Scripts
+## 项目简介
 
-In the project directory, you can run:
+Time Nest 允许用户创建时间胶囊，将当下的想法、照片、文字等内容封存起来，设定在未来某个特定的时间点打开。这为用户提供了一种独特的方式来记录生活、传递情感，或者给自己或他人一个未来的惊喜。
 
-### `npm start`
+## 主要功能
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+*   **创建时间胶囊**：用户可以创建包含文字、图片等内容的时间胶囊。
+*   **设定开启时间**：为每个时间胶囊设定一个未来的开启时间。
+*   **分享时间胶囊**：用户可以选择将时间胶囊分享给特定的朋友或家人。
+*   **开启时间胶囊**：当设定的时间到达时，用户可以打开时间胶囊，回顾过去的时光。
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 目标用户
 
-### `npm test`
+Time Nest 适合所有希望记录生活、传递情感或给自己一个未来惊喜的用户。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 开始使用
 
-### `npm run build`
+1.  克隆此仓库到您的本地环境。
+2.  安装依赖：`npm install`
+3.  启动开发服务器：`npm start`
+4.  在浏览器中访问 `http://localhost:3000` 查看应用。
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 构建生产版本
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+运行 `npm run build` 命令，构建后的文件将位于 `build` 文件夹中。

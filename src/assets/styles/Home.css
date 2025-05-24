@@ -1,0 +1,1561 @@
+/* 确保所有元素使用Excalifont字体 */
+.section-title,
+.capsule-list .capsule-item,
+.capsule-title, 
+.capsule-subtitle,
+.form-control,
+.toggle-label,
+.toggle-container,
+.date-input-container,
+.date-preview,
+.publish-button,
+.nav-tab,
+input, 
+button, 
+textarea,
+label, 
+h1, h2, h3, h4, h5, h6,
+.info-item,
+.editable-text,
+.content-editable {
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+}
+
+/* Modern Home Page Styling */
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #10b981;
+  --secondary-hover: #059669;
+  --accent-color: #f59e0b;
+  --accent-hover: #d97706;
+  --dark-color: #1f2937;
+  --light-color: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --success-color: #10b981;
+  --border-radius: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --transition: all 0.3s ease;
+}
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 全局样式 */body {  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",    "Helvetica Neue", sans-serif !important;
+  background-color: #f0f7ff;
+  color: #333;
+  line-height: 1.5;
+  height: 100vh;
+  overflow-x: hidden; /* 允许垂直滚动但隐藏水平滚动 */
+  overflow-y: auto; /* 允许垂直滚动 */
+  scrollbar-width: none; /* Firefox隐藏滚动条 */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome和Safari隐藏滚动条 */
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden; /* 允许垂直滚动但隐藏水平滚动 */
+  scrollbar-width: none; /* Firefox隐藏滚动条 */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome和Safari隐藏滚动条 */
+}
+
+/* Main container */
+.home-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* 允许垂直滚动但隐藏水平滚动 */
+  overflow-y: auto; /* 允许垂直滚动 */
+  background: linear-gradient(to bottom, #e6f2ff, #f0f7ff);
+  scrollbar-width: none; /* Firefox隐藏滚动条 */
+}
+
+.home-container::-webkit-scrollbar {
+  display: none; /* Chrome和Safari隐藏滚动条 */
+}
+
+/* 顶部导航栏 */
+.nav-bar {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(225, 228, 232, 0.6);
+  padding: 0.5rem 1.5rem; /* 减小内边距 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 55px; /* 减小高度 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-tab {
+  padding: 0.5rem 1.2rem;
+  border: 1px solid #e1e4e8;
+  border-radius: 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-tab:hover {
+  background-color: #f6f8fa;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, #0366d6, #0077ee);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(3, 102, 214, 0.3);
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.action-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+}
+
+.action-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 页面主体 - 恢复左右布局 */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: row; /* 改为横向排列 */
+  padding: 1rem;
+  gap: 1.25rem;
+  max-width: 1200px; /* 调整最大宽度 */
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  min-height: calc(100vh - 60px); /* 调整减去导航栏高度 */
+  overflow: auto; /* 允许滚动 */
+  scrollbar-width: none; /* 隐藏滚动条 */
+}
+
+.main-content::-webkit-scrollbar {
+  display: none; /* Chrome和Safari隐藏滚动条 */
+}
+
+/* 内容部分通用样式 */
+.content-section {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 650px; /* 固定高度确保左右两侧等高 */
+  min-height: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(229, 231, 235, 0.7);
+  position: relative;
+  overflow: auto;
+  scrollbar-width: none; /* 隐藏滚动条 */
+}
+
+.content-section::-webkit-scrollbar {
+  display: none; /* Chrome和Safari隐藏滚动条 */
+}
+
+/* 内容区域悬停效果 */
+.content-section:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 确保文本区域高度合适 */
+.content-section.create-capsule textarea.form-control {
+  min-height: 100px; 
+  max-height: 150px;
+  resize: vertical; /* 允许垂直调整 */
+}
+
+/* 确保胶囊列表至少有足够高度 */
+.capsule-list {
+  min-height: 500px; /* 确保最小高度，防止过短 */
+}
+
+/* 左侧快速创建区域 */
+.content-section.create-capsule {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  overflow: auto; /* 允许滚动 */
+}
+
+/* 右侧快要解锁区域 */
+.content-section.unlock-capsule {
+  display: flex;
+  flex-direction: column;
+  overflow: auto; /* 允许滚动 */
+}
+
+/* 确保滚动区域能够正常工作 */
+.scrollable-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow: visible;
+  padding-bottom: 0.5rem;
+}
+
+/* 胶囊列表铺满可用空间 */
+.capsule-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  overflow: visible;
+  padding-right: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.3rem; /* 减小字体大小 */
+  font-weight: 600;
+  margin-bottom: 1rem; /* 减小底部边距 */
+  color: #0366d6;
+  position: relative;
+  padding-bottom: 0.5rem; /* 减小底部内边距 */
+  display: flex;
+  align-items: center;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #0366d6, #60a5fa);
+  border-radius: 3px;
+}
+
+/* 表单组件 */
+.form-group {
+  margin-bottom: 0.8rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.4rem; /* 减小底部间距 */
+  color: var(--gray-700);
+  font-size: 0.9rem; /* 减小字体大小 */
+  display: flex;
+  align-items: center;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.7rem; /* 进一步减小内边距 */
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: 0.95rem; /* 减小字体大小 */
+  transition: all 0.2s ease;
+  background-color: white;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 美化输入框 */
+.form-control.title-input {
+  font-weight: 500;
+  font-size: 1rem; /* 减小字体大小 */
+  color: var(--gray-800);
+  padding: 0.7rem 0.9rem; /* 减小内边距 */
+  border-width: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(3, 102, 214, 0.15);
+}
+
+.form-control.title-input:focus {
+  border-color: rgba(3, 102, 214, 0.4);
+  background-color: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 美化文本框 */
+textarea.form-control {
+  min-height: 70px; /* 再减小高度 */
+  max-height: 110px; /* 再减小高度 */
+  line-height: 1.5;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(3, 102, 214, 0.15);
+  padding: 0.7rem 0.9rem; /* 减小内边距 */
+  transition: min-height 0.2s ease;
+  resize: none;
+}
+
+textarea.form-control:focus {
+  min-height: 150px;
+  background-color: white;
+  border-color: rgba(3, 102, 214, 0.4);
+}
+
+/* 美化日期选择 */
+.date-selector {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-input-container {
+  position: relative;
+}
+
+input[type="date"].form-control {
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+}
+
+/* 完全隐藏默认日历图标 */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* 自定义日历图标 - 改进对齐 */
+.calendar-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  font-size: 1rem;
+}
+
+/* 日期预览容器 */
+.date-preview-container {
+  height: 1.5rem; /* 减小高度 */
+  margin-top: 0.2rem; /* 减小顶部间距 */
+}
+
+/* 日期预览 */
+.date-preview {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  background-color: rgba(79, 70, 229, 0.1);
+  border-radius: var(--border-radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeIn 0.3s ease;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 调整各元素margin，使页面更紧凑 */
+.content-section.create-capsule .form-group {
+  margin-bottom: 0.7rem; /* 进一步减小间距 */
+}
+
+.content-section.create-capsule .toggle-container {
+  margin-bottom: 0.7rem; /* 进一步减小间距 */
+  padding: 0.3rem 0; /* 减小内部间距 */
+}
+
+/* 改进的AI按钮 */
+.ai-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.4rem 0.7rem; /* 进一步减小内边距 */
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.1rem; /* 减小顶部边距 */
+  margin-bottom: 0.6rem; /* 减小底部边距 */
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+  position: relative;
+  overflow: hidden;
+  max-width: 160px; /* 减小宽度 */
+  margin-left: auto;
+  margin-right: auto;
+  height: 32px; /* 减小高度 */
+}
+
+.ai-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
+}
+
+.ai-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50px;
+  width: 50px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(450px);
+  }
+}
+
+.ai-icon {
+  margin-right: 0.5rem; /* 稍微减小间距 */
+  font-size: 1rem; /* 减小字体大小 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; /* 减小宽度 */
+  height: 22px; /* 减小高度 */
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+/* 恢复发布按钮样式 */
+.publish-button {
+  background: linear-gradient(135deg, #0366d6, #0284c7);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  box-shadow: 0 4px 10px rgba(3, 102, 214, 0.25);
+}
+
+.publish-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(3, 102, 214, 0.35);
+  background-color: #0256b4;
+}
+
+/* 优化胶囊项容器和布局 */
+.capsule-item {
+  display: flex;
+  align-items: flex-start; /* 改为顶部对齐，更好地处理长文本 */
+  justify-content: space-between;
+  padding: 1.1rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  border: 1px solid var(--gray-200);
+  position: relative;
+  overflow: hidden;
+  border-left-width: 4px;
+}
+
+.capsule-info {
+  flex: 1;
+  padding-left: 0.75rem;
+  margin-right: 1rem; /* 确保与锁图标有足够间距 */
+  overflow: hidden; /* 隐藏溢出的内容 */
+  max-width: calc(100% - 50px); /* 留出锁图标的空间 */
+}
+
+.capsule-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+  color: var(--gray-800);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.capsule-subtitle {
+  font-size: 0.85rem; /* 减小字体大小 */
+  color: var(--gray-600);
+  margin-bottom: 0.4rem; /* 减小底部间距 */
+}
+
+/* 修复胶囊内容文本样式 */
+.capsule-content-preview {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word; /* 允许在任意字符间换行 */
+  max-width: 100%; /* 确保不超出容器宽度 */
+}
+
+/* 这里移除了旧的remaining-days样式，改用remaining-days-badge */
+
+/* 调整锁图标定位 */
+.lock-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  padding: 0.35rem;
+  background-color: rgba(3, 102, 214, 0.1);
+  margin-left: 0.5rem; /* 减小左边距 */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  transition: all 0.3s ease;
+  align-self: center; /* 垂直居中 */
+  flex-shrink: 0; /* 防止缩小 */
+  cursor: pointer;
+}
+
+.lock-icon:hover {
+  background-color: rgba(3, 102, 214, 0.2);
+  transform: scale(1.1) rotate(10deg);
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.25));
+}
+
+.capsule-item:hover {
+  transform: translateY(-2px) scale(1.005); /* 减小悬停效果 */
+  box-shadow: var(--shadow-md);
+}
+
+/* 锁图标旋转动画 */
+.capsule-item:hover .lock-icon {
+  transform: rotate(10deg);
+}
+
+/* 当锁图标单独被悬停时，覆盖capsule-item:hover效果 */
+.capsule-item:hover .lock-icon:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
+/* 右侧胶囊项目的图标样式 */
+.capsule-item .fa-icon {
+  margin-right: 0.6rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+/* Toast通知样式 */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 250px;
+  max-width: 350px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease forwards;
+  font-size: 0.95rem;
+}
+
+.toast-fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.toast-success {
+  background-color: #ecfdf5;
+  border-left: 4px solid #10b981;
+  color: #064e3b;
+}
+
+.toast-error {
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #7f1d1d;
+}
+
+.toast-info {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e40af;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.toast-success .toast-icon {
+  color: #10b981;
+}
+
+.toast-error .toast-icon {
+  color: #ef4444;
+}
+
+.toast-info .toast-icon {
+  color: #3b82f6;
+}
+
+.toast-message {
+  flex-grow: 1;
+  font-weight: 500;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 胶囊还剩几天徽章样式 */
+.remaining-days-badge {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  background-color: rgba(245, 158, 11, 0.1);
+  border-radius: 1rem;
+  margin-left: auto; /* 推到标题最右侧 */
+}
+
+/* 由于移除了日历图标，需要优化日期选择器 */
+input[type="date"].form-control {
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+}
+
+/* 移除媒体查询中重复的胶囊标题样式 */
+@media (max-width: 992px) {
+  .remaining-days-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* 添加加载中和空数据状态的样式 */
+.loading-message, .empty-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+  color: var(--gray-500);
+  text-align: center;
+  font-size: 1.1rem;
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--border-radius);
+  background-color: rgba(245, 245, 245, 0.5);
+  margin: 1rem 0;
+}
+
+.empty-message {
+  flex-direction: column;
+  background-color: rgba(240, 249, 255, 0.5);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 调整响应式设计 */
+@media (max-width: 1024px) {
+  .main-content {
+    max-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column; /* 小屏幕改为上下排列 */
+    max-width: 95%;
+    padding: 0.75rem;
+  }
+  
+  .content-section {
+    padding: 1rem;
+    height: auto; /* 小屏幕时自动高度 */
+    max-height: 650px; /* 限制最大高度 */
+    margin-bottom: 1rem; /* 添加底部间距 */
+  }
+
+  .nav-bar {
+    padding: 0.5rem;
+  }
+
+  .nav-tabs {
+    gap: 0.5rem;
+  }
+
+  .nav-tab {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .user-actions {
+    gap: 0.75rem;
+  }
+
+  .action-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .avatar-icons {
+    gap: 0.75rem;
+  }
+
+  .avatar-icons img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .content-card {
+    padding: 0.75rem;
+  }
+
+  .main-content {
+    flex-direction: column;
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .content-section {
+    padding: 0.75rem;
+  }
+
+  textarea.form-control {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-buttons button {
+    font-size: 0.8rem;
+  }
+
+  .type-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Mobile Menu */
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--gray-700);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  z-index: 20;
+  padding: 1.5rem;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--gray-700);
+  cursor: pointer;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--gray-800);
+  text-decoration: none;
+  border-radius: var(--border-radius);
+}
+
+.mobile-nav-link.active {
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .mobile-menu.open {
+    display: block;
+  }
+}
+
+/* Type buttons */
+.type-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.type-button {
+  flex: 1;
+  padding: 0.5rem 0.7rem; /* 再减小内边距 */
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem; /* 减小字体大小 */
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 90px; /* 减小最小宽度 */
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.type-button:hover {
+  border-color: #0366d6;
+  color: #0366d6;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.type-button.active {
+  background-color: #0366d6;
+  color: white;
+  border-color: #0366d6;
+  box-shadow: 0 4px 8px rgba(3, 102, 214, 0.2);
+}
+
+.type-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Publish button */
+.publish-button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: #2ea44f;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.publish-button:hover {
+  background-color: #2c974b;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e1e4e8;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+textarea.form-control {
+  min-height: 100px; /* Reduced height */
+  resize: vertical;
+}
+
+/* Public toggle */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  padding: 0.3rem 0;
+}
+
+.toggle-label {
+  margin-right: 0.8rem; /* 减小右边距 */
+  font-weight: 500;
+  color: var(--gray-700);
+  font-size: 0.9rem; /* 减小字体大小 */
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px; /* 减小宽度 */
+  height: 24px; /* 减小高度 */
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-300);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; /* 减小高度 */
+  width: 18px; /* 减小宽度 */
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input:checked + .toggle-slider {
+  background-color: #0366d6;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(20px); /* 调整移动距离 */
+}
+
+.date-preview {
+  font-size: 0.8rem;
+  color: #6a737d;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .nav-tabs {
+    gap: 0.25rem;
+  }
+
+  .nav-tab {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .user-actions {
+    gap: 0.5rem;
+  }
+
+  .action-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .type-buttons {
+    flex-direction: column;
+  }
+}
+
+/* 统一发布按钮样式 */
+.publish-button {
+  background: linear-gradient(135deg, #0366d6, #0284c7);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  box-shadow: 0 4px 10px rgba(3, 102, 214, 0.25);
+}
+
+.publish-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(3, 102, 214, 0.35);
+  background-color: #0256b4;
+}
+
+/* 添加改进的响应式布局 */
+@media (max-width: 1200px) {
+  .main-content {
+    max-width: 95%;
+  }
+  
+  .content-section {
+    padding: 1rem;
+  }
+  
+  .type-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .type-button {
+    flex: 1 0 30%;
+    min-width: 80px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .form-control.title-input {
+    font-size: 0.95rem;
+    padding: 0.7rem 0.9rem;
+  }
+  
+  textarea.form-control {
+    min-height: 80px;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-section {
+    height: 600px;
+  }
+  
+  .form-label {
+    font-size: 0.85rem;
+  }
+  
+  .capsule-title {
+    font-size: 0.95rem;
+  }
+  
+  .capsule-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .capsule-content-preview {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+  
+  .content-section {
+    height: auto;
+    margin-bottom: 1rem;
+    max-height: 600px;
+  }
+  
+  .publish-button {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+  }
+  
+  /* 确保小屏幕时容器高度和元素大小合理 */
+  .content-section.create-capsule {
+    min-height: 500px;
+  }
+  
+  .content-section.unlock-capsule {
+    min-height: 500px;
+  }
+}
+
+/* 设定内容区域的过渡效果，确保响应式变化平滑 */
+.content-section, 
+.form-control,
+.type-button,
+.capsule-item,
+.publish-button {
+  transition: all 0.3s ease-in-out;
+}
+
+/* 添加胶囊项的渐变边框 */
+.capsule-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px; /* 与边框宽度匹配 */
+  background: linear-gradient(to bottom, #0366d6, #60a5fa);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+}
+
+/* 添加加载中和空数据状态的样式 */
+.loading-message, .empty-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+  color: var(--gray-500);
+  text-align: center;
+  font-size: 1.1rem;
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--border-radius);
+  background-color: rgba(245, 245, 245, 0.5);
+  margin: 1rem 0;
+}
+
+.empty-message {
+  flex-direction: column;
+  background-color: rgba(240, 249, 255, 0.5);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 确认对话框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirm-header {
+  padding: 16px;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.confirm-icon {
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+.confirm-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.confirm-body {
+  padding: 20px 16px;
+  color: var(--gray-800);
+}
+
+.confirm-body p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.confirm-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+}
+
+.confirm-footer button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: var(--gray-100);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+  margin-right: 12px;
+}
+
+.btn-cancel:hover {
+  background-color: var(--gray-200);
+}
+
+.btn-confirm {
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  color: white;
+}
+
+.btn-confirm:hover {
+  background-color: var(--primary-dark);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.msg-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  z-index: 2;
+  box-shadow: 0 0 4px #ef4444;
+}
+
+/* 图片上传组件样式 */
+.image-upload-container {
+  border: 2px dashed var(--gray-300);
+  border-radius: 8px;
+  padding: 10px;
+  background-color: var(--gray-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+  position: relative;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.upload-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  color: var(--gray-600);
+  transition: all 0.2s ease;
+}
+
+.upload-button-container:hover {
+  color: var(--primary-color);
+}
+
+.upload-button-container span {
+  margin-top: 10px;
+}
+
+.uploaded-image-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.change-image-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.change-image-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.upload-loading {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* 好友选择相关样式 */
+.friend-select-button {
+  background-color: var(--gray-100);
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.friend-select-button:hover {
+  background-color: var(--gray-200);
+  border-color: var(--gray-400);
+}
+
+.friend-selector-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.friend-selector-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-200);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.friend-selector-item:last-child {
+  border-bottom: none;
+}
+
+.friend-selector-item:hover {
+  background-color: var(--gray-100);
+}
+
+.friend-selector-item.selected {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.friend-info {
+  flex-grow: 1;
+}
+
+.friend-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.friend-account {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+
+.friend-select-indicator {
+  color: var(--primary-color);
+  margin-left: 10px;
+}
+
+/* 表单组样式更新 */
+.form-group {
+  margin-bottom: 24px;
+}
+
+/* 确认按钮样式 */
+.confirm-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.confirm-button:disabled {
+  background-color: var(--gray-400);
+  cursor: not-allowed;
+}

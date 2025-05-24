@@ -1,0 +1,49 @@
+/* 全局字体覆盖 - 确保所有元素使用Excalifont字体 */
+* {
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+}
+
+/* 具体元素覆盖 */
+body,
+html,
+div,
+span,
+a,
+p,
+h1, h2, h3, h4, h5, h6,
+input,
+button,
+textarea,
+select,
+label,
+li, 
+ul,
+ol,
+table,
+th,
+td,
+tr,
+thead,
+tbody,
+tfoot,
+.section-title,
+.capsule-list .capsule-item,
+.capsule-title, 
+.capsule-subtitle,
+.form-control,
+.toggle-label,
+.toggle-container,
+.date-input-container,
+.date-preview,
+.publish-button,
+.nav-tab {
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+}
+
+/* 针对时间胶囊应用特定样式 */
+.home-container *,
+.content-section *,
+.capsule-item *,
+.form-group * {
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+} 

@@ -1,0 +1,71 @@
+.App {
+  text-align: center;
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: 'Excalifont', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif !important;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* 添加新样式 */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto !important; /* 允许垂直滚动 */
+  position: static; /* 使用静态定位 */
+  top: 0; /* 确保从顶部开始 */
+}
+
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* 修改toggle-container的样式 */
+.toggle-container {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* 移除动画关键帧 */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 全局滚动样式 */
+html, body, #root {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}

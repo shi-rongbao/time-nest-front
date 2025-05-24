@@ -1,0 +1,180 @@
+.time-nest-list-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color, #4a90e2);
+  font-size: 2rem;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 30px;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.error-container {
+  background-color: #fff3f3;
+  border: 1px solid #ffcaca;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  color: #e53935;
+  text-align: center;
+}
+
+.empty-list {
+  text-align: center;
+  padding: 40px 0;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.time-nest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.time-nest-item {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.time-nest-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.time-nest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.time-nest-title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.time-nest-type {
+  background-color: #f0f7ff;
+  color: #4a90e2;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.time-nest-content-preview {
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.time-nest-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #888;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.time-nest-date {
+  flex: 1;
+}
+
+.time-nest-status {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background-color: #e8f5e9;
+  color: #43a047;
+  margin: 0 10px;
+}
+
+.time-nest-unlock-time {
+  color: #555;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.pagination-btn {
+  background-color: #f5f5f5;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: #666;
+}
+
+.back-button-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.back-button {
+  background-color: transparent;
+  border: 1px solid #4a90e2;
+  color: #4a90e2;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background-color: #4a90e2;
+  color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .time-nest-list-container {
+    padding: 15px;
+  }
+  
+  .time-nest-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .time-nest-status {
+    margin: 5px 0;
+  }
+} 
