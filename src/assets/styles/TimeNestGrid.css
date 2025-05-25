@@ -1,0 +1,301 @@
+/* 拾光纪卡片式瀑布流布局样式 */
+.time-nest-grid-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.time-nest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 16px;
+  grid-auto-flow: dense;
+}
+
+.time-nest-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  break-inside: avoid;
+  height: 100%;
+}
+
+.time-nest-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-cover {
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.time-nest-card:hover .card-cover img {
+  transform: scale(1.05);
+}
+
+.card-type-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.card-content {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-preview {
+  color: #4a5568;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #f9fafb;
+  border-top: 1px solid #edf2f7;
+  font-size: 0.75rem;
+}
+
+.card-date {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.card-unlock-status {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* 不同类型拾光纪的颜色方案 */
+.type-1 .card-type-badge {
+  color: #4a90e2;
+  background-color: #e6f0fd;
+}
+
+.type-2 .card-type-badge {
+  color: #9b59b6;
+  background-color: #f3e8ff;
+}
+
+.type-3 .card-type-badge {
+  color: #e67e22;
+  background-color: #fef3e8;
+}
+
+/* 锁定状态样式 */
+.status-locked {
+  color: #e53e3e;
+  background-color: #fff5f5;
+}
+
+.status-unlocked {
+  color: #38a169;
+  background-color: #f0fff4;
+}
+
+/* 加载更多区域 */
+.load-more-container {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.load-more-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-button:hover {
+  background-color: #3a7bc8;
+}
+
+.load-more-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* 加载指示器 */
+.loading-indicator {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  color: #718096;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(74, 144, 226, 0.3);
+  border-radius: 50%;
+  border-top-color: #4a90e2;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.no-more-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  color: #718096;
+  font-style: italic;
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .time-nest-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .time-nest-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .time-nest-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .card-preview {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .time-nest-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  
+  .time-nest-grid-container {
+    padding: 10px;
+  }
+  
+  .card-content {
+    padding: 12px;
+  }
+  
+  .card-footer {
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+}
+
+/* 图片懒加载过渡效果 */
+.card-image {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-image.loaded {
+  opacity: 1;
+}
+
+/* 默认封面图占位符 */
+.card-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f7fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a0aec0;
+  font-size: 2rem;
+}
+
+/* 返回顶部按钮 */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+}
+
+.back-to-top:hover {
+  background-color: #3a7bc8;
+} 

@@ -174,60 +174,74 @@ html::-webkit-scrollbar {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 页面主体 - 恢复左右布局 */
-.main-content {
+/* 页面主体 - 左右双栏布局 */
+.main-content-grid {
   flex: 1;
   display: flex;
-  flex-direction: row; /* 改为横向排列 */
   padding: 1rem;
-  gap: 1.25rem;
-  max-width: 1200px; /* 调整最大宽度 */
+  gap: 1.5rem; 
+  width: 70%;
   margin: 0 auto;
-  width: 100%;
-  height: auto;
-  min-height: calc(100vh - 60px); /* 调整减去导航栏高度 */
-  overflow: auto; /* 允许滚动 */
-  scrollbar-width: none; /* 隐藏滚动条 */
 }
 
-.main-content::-webkit-scrollbar {
-  display: none; /* Chrome和Safari隐藏滚动条 */
+/* 左侧新建区域 */
+.create-section {
+  flex: 4; /* 调整flex比例，让右侧更宽一些 */
+  display: flex;
+  flex-direction: column;
+  min-width: 400px; /* 可适当调整左侧最小宽度 */
+  /* max-width: 600px; */ /* 移除固定max-width，让flex控制 */
 }
 
-/* 内容部分通用样式 */
+/* 右侧即将解锁区域 */
+.upcoming-section {
+  flex: 6; /* 调整flex比例，让右侧更宽一些 */
+  display: flex;
+  flex-direction: column;
+  min-width: 0; 
+}
+
+/* 通用内容模块样式 - 应用于 .create-section 和 .upcoming-section */
 .content-section {
-  flex: 1;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
+  padding: 1.25rem; 
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 650px; /* 固定高度确保左右两侧等高 */
-  min-height: auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(229, 231, 235, 0.7);
-  position: relative;
-  overflow: auto;
-  scrollbar-width: none; /* 隐藏滚动条 */
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden; 
 }
 
-.content-section::-webkit-scrollbar {
-  display: none; /* Chrome和Safari隐藏滚动条 */
-}
-
-/* 内容区域悬停效果 */
 .content-section:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  /* 移除或调整之前的 transform 和 box-shadow 悬停效果，避免在固定布局下跳动 */
+  /* transform: translateY(-3px); */
+  /* box-shadow: var(--shadow-lg); */
 }
 
-/* 确保文本区域高度合适 */
-.content-section.create-capsule textarea.form-control {
-  min-height: 100px; 
-  max-height: 150px;
-  resize: vertical; /* 允许垂直调整 */
+/* 左侧新建区域内部滚动 */
+.create-section .scrollable-area {
+  flex: 1;
+  overflow-y: auto; 
+  padding-right: 0.5rem; 
+  margin-bottom: 1rem; 
+}
+
+/* 右侧即将解锁列表的包裹器 */
+.upcoming-section .capsule-list-grid-wrapper {
+  flex: 1;
+  overflow-y: auto; 
+  padding: 0.25rem; 
+}
+
+/* TimeNestGrid 在右侧的特定布局调整 */
+.upcoming-section .time-nest-grid {
+  display: grid; /* 确保是 grid 布局 */
+  grid-template-columns: repeat(3, 1fr); /* 固定为3列，每列等宽 */
+  gap: 1rem; /* 卡片之间的间距 */
+  width: 100%; /* 确保网格占据全部可用宽度 */
+  padding-bottom: 1rem; /* 列表底部留白 */
 }
 
 /* 确保胶囊列表至少有足够高度 */
@@ -235,20 +249,28 @@ html::-webkit-scrollbar {
   min-height: 500px; /* 确保最小高度，防止过短 */
 }
 
-/* 左侧快速创建区域 */
+/* 左侧快速创建区域 - 现在是顶部区域 */
 .content-section.create-capsule {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */ /* 移除，让内容自然排列 */
   padding-bottom: 1rem;
-  overflow: auto; /* 允许滚动 */
+  /* overflow: auto; */ /* 由内部scrollable-area控制或自然滚动 */
 }
 
-/* 右侧快要解锁区域 */
+/* 右侧快要解锁区域 - 现在是下方区域 */
 .content-section.unlock-capsule {
   display: flex;
   flex-direction: column;
-  overflow: auto; /* 允许滚动 */
+  /* overflow: auto; */ /* 由内部scrollable-area控制或自然滚动 */
+}
+
+/* 调整为网格布局以适应更多卡片 */
+.content-section.unlock-capsule .time-nest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 固定为3列，每列等宽 */
+  gap: 1rem; /* 卡片之间的间距 */
+  width: 100%; /* 确保网格占据全部可用宽度 */
 }
 
 /* 确保滚动区域能够正常工作 */
@@ -770,440 +792,71 @@ input[type="date"].form-control {
 /* 添加加载中和空数据状态的样式 */
 .loading-message, .empty-message {
   display: flex;
+  flex-direction: column; /* 让图标和文字垂直排列 */
   justify-content: center;
   align-items: center;
-  height: 200px;
   width: 100%;
   color: var(--gray-500);
   text-align: center;
-  font-size: 1.1rem;
-  border: 1px dashed var(--gray-300);
+  font-size: 1rem; /* 调整字体大小 */
+  padding: 2rem 1rem; /* 增加上下内边距 */
+  /* border: 1px dashed var(--gray-300); */ /* 移除边框 */
   border-radius: var(--border-radius);
-  background-color: rgba(245, 245, 245, 0.5);
+  background-color: transparent; /* 背景透明或使用更柔和的颜色 */
   margin: 1rem 0;
 }
 
 .empty-message {
-  flex-direction: column;
-  background-color: rgba(240, 249, 255, 0.5);
-  color: var(--primary-color);
+  color: var(--gray-600); /* 为空消息使用稍深一点的灰色 */
+  /* background-color: rgba(240, 249, 255, 0.5); */ /* 可以移除或更改背景色 */
   font-weight: 500;
+}
+
+/* 专门为列表底部的"加载更多"和"没有更多"提示调整样式 */
+.capsule-list .loading-message,
+.capsule-list .empty-message {
+  font-size: 0.9rem;
+  padding: 1rem; /* 减小列表内部提示的内边距 */
+  margin: 0; /* 移除列表内部提示的外边距 */
+  background-color: var(--gray-100); /* 给列表底部的提示一个轻微的背景 */
+}
+
+.capsule-list .empty-message {
+   border-top: 1px solid var(--gray-200); /* 为"没有更多"消息添加一个顶部边框 */
+   color: var(--gray-500);
+   font-weight: normal;
 }
 
 /* 调整响应式设计 */
 @media (max-width: 1024px) {
-  .main-content {
-    max-width: 900px;
+  .main-content-grid {
+    flex-direction: column;
+    height: auto;
+  }
+  .create-section,
+  .upcoming-section {
+    flex-basis: auto; /* 恢复自动基准宽度 */
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+    height: auto; /* 高度自动 */
+    /* max-height: 70vh; */ /* 在堆叠时可以限制各部分最大高度 */
+  }
+  .create-section .scrollable-area {
+    max-height: 50vh; /* 限制表单滚动区域高度 */
+  }
+  .upcoming-section .capsule-list-grid-wrapper {
+    max-height: 60vh; /* 限制卡片列表滚动区域高度 */
+  }
+  .create-section .publish-button {
+    position: relative; /* 在堆叠时取消吸底 */
+    bottom: auto;
+    margin-top: 1rem; /* 与上方内容的间距 */
   }
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    flex-direction: column; /* 小屏幕改为上下排列 */
-    max-width: 95%;
-    padding: 0.75rem;
-  }
-  
-  .content-section {
-    padding: 1rem;
-    height: auto; /* 小屏幕时自动高度 */
-    max-height: 650px; /* 限制最大高度 */
-    margin-bottom: 1rem; /* 添加底部间距 */
-  }
-
-  .nav-bar {
-    padding: 0.5rem;
-  }
-
-  .nav-tabs {
-    gap: 0.5rem;
-  }
-
-  .nav-tab {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-  }
-
-  .user-actions {
-    gap: 0.75rem;
-  }
-
-  .action-icon {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
-  .avatar-icons {
-    gap: 0.75rem;
-  }
-
-  .avatar-icons img {
-    width: 30px;
-    height: 30px;
-  }
-
-  .content-card {
-    padding: 0.75rem;
-  }
-
-  .main-content {
-    flex-direction: column;
-    padding: 0.75rem;
-    gap: 0.75rem;
-  }
-
-  .content-section {
-    padding: 0.75rem;
-  }
-
-  textarea.form-control {
-    min-height: 100px;
-  }
-}
-
-@media (max-width: 640px) {
-  .nav-buttons button {
-    font-size: 0.8rem;
-  }
-
-  .type-buttons {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
-/* Mobile Menu */
-.mobile-menu-button {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--gray-700);
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.mobile-menu {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  z-index: 20;
-  padding: 1.5rem;
-}
-
-.mobile-menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.mobile-menu-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--gray-700);
-  cursor: pointer;
-}
-
-.mobile-nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mobile-nav-link {
-  display: block;
-  padding: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--gray-800);
-  text-decoration: none;
-  border-radius: var(--border-radius);
-}
-
-.mobile-nav-link.active {
-  color: var(--primary-color);
-  background-color: rgba(79, 70, 229, 0.1);
-}
-
-@media (max-width: 768px) {
-  .mobile-menu-button {
-    display: block;
-  }
-
-  .mobile-menu.open {
-    display: block;
-  }
-}
-
-/* Type buttons */
-.type-buttons {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.type-button {
-  flex: 1;
-  padding: 0.5rem 0.7rem; /* 再减小内边距 */
-  background-color: white;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius);
-  font-size: 0.9rem; /* 减小字体大小 */
-  font-weight: 500;
-  color: var(--gray-700);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 90px; /* 减小最小宽度 */
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.type-button:hover {
-  border-color: #0366d6;
-  color: #0366d6;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-.type-button.active {
-  background-color: #0366d6;
-  color: white;
-  border-color: #0366d6;
-  box-shadow: 0 4px 8px rgba(3, 102, 214, 0.2);
-}
-
-.type-button svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-/* Publish button */
-.publish-button {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background-color: #2ea44f;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.publish-button:hover {
-  background-color: #2c974b;
-}
-
-/* Form elements */
-.form-group {
-  margin-bottom: 0.75rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e1e4e8;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #0366d6;
-  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
-}
-
-textarea.form-control {
-  min-height: 100px; /* Reduced height */
-  resize: vertical;
-}
-
-/* Public toggle */
-.toggle-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.7rem;
-  padding: 0.3rem 0;
-}
-
-.toggle-label {
-  margin-right: 0.8rem; /* 减小右边距 */
-  font-weight: 500;
-  color: var(--gray-700);
-  font-size: 0.9rem; /* 减小字体大小 */
-}
-
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 44px; /* 减小宽度 */
-  height: 24px; /* 减小高度 */
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--gray-300);
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 18px; /* 减小高度 */
-  width: 18px; /* 减小宽度 */
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-input:checked + .toggle-slider {
-  background-color: #0366d6;
-}
-
-input:checked + .toggle-slider:before {
-  transform: translateX(20px); /* 调整移动距离 */
-}
-
-.date-preview {
-  font-size: 0.8rem;
-  color: #6a737d;
-  margin-top: 0.25rem;
-}
-
-@media (max-width: 480px) {
-  .nav-tabs {
-    gap: 0.25rem;
-  }
-
-  .nav-tab {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .user-actions {
-    gap: 0.5rem;
-  }
-
-  .action-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
-  .type-buttons {
-    flex-direction: column;
-  }
-}
-
-/* 统一发布按钮样式 */
-.publish-button {
-  background: linear-gradient(135deg, #0366d6, #0284c7);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  width: 100%;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: auto;
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  box-shadow: 0 4px 10px rgba(3, 102, 214, 0.25);
-}
-
-.publish-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(3, 102, 214, 0.35);
-  background-color: #0256b4;
-}
-
-/* 添加改进的响应式布局 */
-@media (max-width: 1200px) {
-  .main-content {
-    max-width: 95%;
-  }
-  
-  .content-section {
-    padding: 1rem;
-  }
-  
-  .type-buttons {
-    flex-wrap: wrap;
-  }
-  
-  .type-button {
-    flex: 1 0 30%;
-    min-width: 80px;
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-  
-  .form-control.title-input {
-    font-size: 0.95rem;
-    padding: 0.7rem 0.9rem;
-  }
-  
-  textarea.form-control {
-    min-height: 80px;
-  }
-}
-
-@media (max-width: 992px) {
-  .content-section {
-    height: 600px;
-  }
-  
-  .form-label {
-    font-size: 0.85rem;
-  }
-  
-  .capsule-title {
-    font-size: 0.95rem;
-  }
-  
-  .capsule-subtitle {
-    font-size: 0.8rem;
-  }
-  
-  .capsule-content-preview {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
+  .main-content-grid {
     flex-direction: column;
     padding: 0.75rem;
   }
@@ -1558,4 +1211,141 @@ input:checked + .toggle-slider:before {
 .confirm-button:disabled {
   background-color: var(--gray-400);
   cursor: not-allowed;
+}
+
+/* 确保表单元素在较窄的左侧栏中显示良好 */
+.create-section .form-control {
+  font-size: 0.9rem; /* 略微减小字体 */
+}
+
+.create-section .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  display: block; /* 确保label是块级元素，让下面的控件能正确对齐 */
+}
+
+.create-section .type-buttons {
+  display: flex;
+  gap: 0.75rem; /* 稍微增大按钮间距 */
+  margin-bottom: 0.75rem; /* 与下方元素的间距 */
+  /* flex-wrap: wrap; */ /* 如果按钮可能换行，则需要，但目标是单行均匀分布 */
+}
+
+.create-section .type-button {
+  flex: 1; /* 让按钮平分容器宽度 */
+  padding: 0.5rem 0.6rem; /* 调整内边距 */
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex; /* 用于内部图标和文字对齐 */
+  align-items: center;
+  justify-content: center;
+  min-width: 80px; /* 确保按钮不会过窄 */
+}
+
+.create-section .type-button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* 确保.active样式能正确应用并有明显区分 */
+.create-section .type-button.active {
+  background-color: var(--primary-color); /* 使用CSS变量 */
+  color: white;
+  border-color: var(--primary-color); /* 使用CSS变量 */
+  box-shadow: 0 3px 7px rgba(var(--primary-color-rgb), 0.3); /* 使用RGB变量创建带透明度的阴影 */
+  transform: translateY(-1px); /* 轻微上浮效果 */
+}
+
+.create-section .type-button svg {
+  margin-right: 0.4rem; /* 图标与文字间距 */
+  width: 0.9em; /* 图标大小相对于字体大小 */
+  height: 0.9em;
+}
+
+.create-section .ai-button {
+  max-width: 140px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  height: 30px;
+}
+
+.create-section .publish-button {
+  padding: 0.6rem 1rem; /* 调整发布按钮内边距 */
+  font-size: 1rem;
+  margin-top: auto; /* 确保按钮在底部，如果.scrollable-area不是flex:1的话 */
+  position: sticky; /* 使按钮固定在.create-section底部 */
+  bottom: 1.25rem; /* 对应.content-section的padding */
+  background-color: var(--primary-color); /* 确保背景色 */
+  z-index: 1; /* 确保在滚动内容之上 */
+}
+
+/* 确保"公开"开关的样式被正确应用 - 这些样式应该已在Home.css某处或全局CSS中 */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.7rem; /* 与原Home.css中保持一致或调整 */
+  padding: 0.3rem 0;
+}
+
+.toggle-label {
+  margin-right: 0.8rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px; 
+  height: 24px; 
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-300);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; 
+  width: 18px; 
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input:checked + .toggle-slider {
+  background-color: #0366d6; /* 主题色 */
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(20px); 
 }

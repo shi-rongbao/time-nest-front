@@ -10,7 +10,8 @@ import api from "../../services/api"
 import { useHistory } from 'react-router-dom'
 import { getCachedAvatar, cacheAvatar } from "../../utils/cacheUtils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCalendarAlt, faClock, faFeatherAlt, faEnvelope, faLock, faImage, faGlobe, faLockOpen, faPencilAlt, faMagic, faCheckCircle, faTimesCircle, faInfoCircle, faExclamationTriangle, faUpload, faUsers, faUserLock } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faClock, faFeatherAlt, faEnvelope, faLock, faImage, faGlobe, faLockOpen, faPencilAlt, faMagic, faCheckCircle, faTimesCircle, faInfoCircle, faExclamationTriangle, faUpload, faUsers, faUserLock, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import TimeNestCard from "../TimeNestCard"
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -83,13 +84,9 @@ const Home = () => {
   const [content, setContent] = useState("")
   const [unlockDate, setUnlockDate] = useState("")
   const [avatarUrl, setAvatarUrl] = useState(getCachedAvatar() || "")
-  // 即将解锁的胶囊数据
   const [upcomingCapsules, setUpcomingCapsules] = useState([])
-  // 加载状态
   const [loading, setLoading] = useState(true)
-  // Toast 状态
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' })
-  // 确认对话框状态
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     title: '',
@@ -101,10 +98,8 @@ const Home = () => {
   const [showMsgModal, setShowMsgModal] = useState(false);
   const pollingRef = useRef(null);
   const [msgLoadingId, setMsgLoadingId] = useState(null);
-  // 新增一个状态来控制是否启用轮询 - 默认开启
   const [enablePolling, setEnablePolling] = useState(true);
   
-  // 新增状态变量
   const [emailAddress, setEmailAddress] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -112,14 +107,13 @@ const Home = () => {
   const [selectedFriendIds, setSelectedFriendIds] = useState([]);
   const [selectedUnlockFriendIds, setSelectedUnlockFriendIds] = useState([]);
   const [showFriendSelector, setShowFriendSelector] = useState(false);
-  const [friendSelectorType, setFriendSelectorType] = useState('share'); // 'share' 或 'unlock'
+  const [friendSelectorType, setFriendSelectorType] = useState('share');
   const fileInputRef = useRef(null);
   
   // 添加API请求控制和缓存
   const isFetchingUnreadRef = useRef(false);
   const isFetchingFriendListRef = useRef(false);
   const apiCacheRef = useRef({});
-  // 添加记录上次请求时间的ref
   const lastRequestTimeRef = useRef(Date.now());
   
   const history = useHistory()
@@ -227,29 +221,32 @@ const Home = () => {
     }
   }, []);
   
-  // 获取即将解锁的胶囊列表 - 移除调试日志
+  // 获取即将解锁的胶囊列表 - 获取最多6条，不再分页
   const fetchUpcomingCapsules = useCallback(async () => {
-    // 移除日志
-    // console.log('[API调用] 开始获取即将解锁的胶囊列表', new Date().toLocaleTimeString());
-    
+    console.log(`[API调用] 获取即将解锁的胶囊列表 (最多6条)`, new Date().toLocaleTimeString());
     try {
-      setLoading(true)
-      // 使用缓存API调用，缓存时间设为60秒
-      const response = await cachedFetch("/timeNest/queryMyUnlockingNestList", {}, 60000)
-      // 移除日志
-      // console.log('[API调用] 获取胶囊列表完成', new Date().toLocaleTimeString(), '缓存命中:', response._fromCache ? '是' : '否');
+      setLoading(true);
+      setUpcomingCapsules([]); 
+      // API不再需要分页参数，后端应返回最多6条
+      const response = await cachedFetch(`/timeNest/queryMyUnlockingNestList`, {}, 60000); 
       
       if (response?.success && response.data) {
-        setUpcomingCapsules(response.data)
+        // 假设后端直接返回数组，或包含list的结构，取前6条
+        const capsules = response.data.list || response.data;
+        setUpcomingCapsules(Array.isArray(capsules) ? capsules.slice(0, 6) : []);
+      } else {
+        setUpcomingCapsules([]);
+        showToast("获取解锁列表失败", "error");
       }
     } catch (error) {
-      console.error("获取即将解锁的胶囊列表出错:", error)
-      showToast("获取解锁列表失败，请稍后再试", "error")
+      console.error("获取即将解锁的胶囊列表出错:", error);
+      setUpcomingCapsules([]);
+      showToast("获取解锁列表失败，请稍后再试", "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [cachedFetch]); // 依赖cachedFetch，避免循环依赖
-  
+  }, [cachedFetch]);
+
   // 获取用户信息 - 移除为调试添加的代码
   const fetchUserInfo = useCallback(async () => {
     // 移除日志
@@ -480,10 +477,10 @@ const Home = () => {
     //          'history状态:', history.length);
     
     fetchUserInfo();
-    fetchUpcomingCapsules();
+    fetchUpcomingCapsules(); // 初始加载
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // fetchUpcomingCapsules 已被 useCallback 包裹，其依赖已在 useCallback 中声明
 
   // 处理胶囊类型变更
   const handleCapsuleTypeChange = (type) => {
@@ -590,7 +587,11 @@ const Home = () => {
     setSelectedUnlockFriendIds([]);
   };
 
+  const [isPublishing, setIsPublishing] = useState(false); // New state for publish button loading
+
   const handlePublishCapsule = async () => {
+    if (isPublishing) return; // Prevent multiple submissions
+
     // 表单验证
     if (!title.trim()) {
       showToast("请输入标题", "error");
@@ -613,6 +614,8 @@ const Home = () => {
       showToast("请上传图片", "error");
       return;
     }
+
+    setIsPublishing(true); // Set loading state for publish button
 
     // 构建请求参数
     const nestTypeMap = {
@@ -648,9 +651,7 @@ const Home = () => {
       
       if (response.success) {
         showToast("拾光纪条目创建成功！", "success");
-        // 重置表单
         resetForm();
-        // 刷新即将解锁的胶囊列表
         fetchUpcomingCapsules();
       } else {
         showToast("创建失败: " + (response.message || "未知错误"), "error");
@@ -658,6 +659,8 @@ const Home = () => {
     } catch (error) {
       console.error("创建拾光纪条目出错:", error);
       showToast("创建请求失败，请稍后再试", "error");
+    } finally {
+      setIsPublishing(false); // Reset loading state for publish button
     }
   }
 
@@ -691,7 +694,7 @@ const Home = () => {
     setConfirmModal({
       isOpen: true,
       title: "提前解锁",
-      message: "确认提前解锁nest吗？",
+      message: "确认提前解锁拾光纪吗？",
       capsuleId: id
     });
   };
@@ -881,16 +884,15 @@ const Home = () => {
         封存此刻，寄往未来  <span style={{ fontSize: '0.92rem', marginLeft: '0.5em' }}>Save the moment. Send it to the future.</span>
       </div>
 
-      {/* Main Content Area - 改为上下布局 */}
-      <div className="main-content">
-        {/* 快速新建胶囊部分 */}
-        <div className="content-section create-capsule">
+      {/* Main Content Area - now two columns */}
+      <div className="main-content-grid"> {/* New wrapper for two columns */}
+        {/* 左侧：新建拾光纪条目 (40%) */}
+        <div className="create-section content-section">
           <h2 className="section-title">
             <FontAwesomeIcon icon={faFeatherAlt} style={{ marginRight: '0.75rem', opacity: 0.8 }} />
             新建拾光纪条目
           </h2>
-
-          <div className="scrollable-area">
+          <div className="scrollable-area"> {/* Keep scrollable area for form content */}
             <div className="toggle-container">
               <span className="toggle-label">公开</span>
               <label className="toggle-switch">
@@ -947,7 +949,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* 邮件类型特有的邮箱输入框 */}
             {capsuleType === "email" && (
               <div className="form-group">
                 <label className="form-label">
@@ -964,7 +965,6 @@ const Home = () => {
               </div>
             )}
 
-            {/* 图片类型特有的上传组件 */}
             {capsuleType === "image" && (
               <div className="form-group">
                 <label className="form-label">
@@ -1032,8 +1032,7 @@ const Home = () => {
               </span>
               AI 一键总结
             </button>
-
-            {/* 好友选择 */}
+            
             <div className="form-group">
               <label className="form-label">
                 <FontAwesomeIcon icon={faUsers} style={{ marginRight: '0.5rem', color: 'var(--primary-color)' }} />
@@ -1089,65 +1088,61 @@ const Home = () => {
               </div>
             </div>
           </div>
-
-          <button type="button" className="publish-button" onClick={handlePublishCapsule}>
-            发布拾光纪条目
+          <button 
+            type="button" 
+            className="publish-button" 
+            onClick={handlePublishCapsule}
+            disabled={isPublishing}
+          >
+            {isPublishing ? (
+              <>
+                <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '0.5rem' }} />
+                发布中...
+              </>
+            ) : (
+              "发布拾光纪条目"
+            )}
           </button>
         </div>
 
-        {/* 快要解锁的胶囊部分 */}
-        <div className="content-section unlock-capsule">
+        {/* 右侧：即将解锁的拾光纪 (60%) */}
+        <div className="upcoming-section content-section"> 
           <h2 className="section-title">
-            <FontAwesomeIcon icon={faLockOpen} style={{ marginRight: '0.75rem', opacity: 0.8 }} />
-            即将解锁的拾光纪条目
+            <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.75rem', opacity: 0.8 }} />
+            即将解锁的拾光纪
           </h2>
-
-          <div className="capsule-list">
-            {loading ? (
-              <div className="loading-message">加载中...</div>
+          <div className="capsule-list-grid-wrapper"> {/* New wrapper for grid if needed, or apply grid to upcoming-section directly */} 
+            {loading && upcomingCapsules.length === 0 ? (
+              <div className="loading-message">
+                <FontAwesomeIcon icon={faSpinner} spin size="2x" style={{ marginBottom: '1rem', color: 'var(--primary-color)' }} />
+                <span>加载中...</span>
+              </div>
             ) : upcomingCapsules.length > 0 ? (
-              upcomingCapsules.map(capsule => (
-                <div key={capsule.id} className="capsule-item">
-                  <div className="capsule-info">
-                    <div className="capsule-title">
-                      <FontAwesomeIcon 
-                        icon={getCapsuleTypeIcon(capsule.nestType)} 
-                        style={{ marginRight: '0.5rem', opacity: 0.8 }} 
-                      />
-                      {capsule.nestTitle}
-                      <span className="remaining-days-badge">
-                        <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem' }} />
-                        还剩{capsule.unlockDays}天
-                      </span>
-                    </div>
-                    <div className="capsule-subtitle">
-                      <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '0.3rem' }} />
-                      创建于 {formatDate(capsule.createdAt)}
-                      {capsule.publicStatus === 1 && (
-                        <span style={{ marginLeft: '0.75rem' }}>
-                          <FontAwesomeIcon icon={faGlobe} style={{ marginRight: '0.3rem' }} />
-                          公开
-                        </span>
-                      )}
-                    </div>
-                    <div className="capsule-content-preview">
-                      {capsule.nestContent.length > 23 
-                        ? `${capsule.nestContent.substring(0, 23)}...` 
-                        : capsule.nestContent}
-                    </div>
-                  </div>
-                  <img 
-                    src={LockIcon || "/placeholder.svg"} 
-                    alt="未解锁" 
-                    className="lock-icon" 
+              <div className="time-nest-grid"> {/* This will use existing grid styles from TimeNestGrid.css */} 
+                {upcomingCapsules.map(capsule => (
+                  <TimeNestCard
+                    key={capsule.id + '-' + capsule.nestTitle}
+                    data={{
+                      id: capsule.id,
+                      nestType: capsule.nestType,
+                      nestTitle: capsule.nestTitle,
+                      nestContent: capsule.nestContent,
+                      createdAt: capsule.createdAt,
+                      unlockedStatus: 0, 
+                      publicStatus: capsule.publicStatus,
+                      coverImage: capsule.coverImage || null,
+                      unlockTime: capsule.unlockTime // 传递unlockTime给TimeNestCard用于显示
+                    }}
                     onClick={() => handleUnlockCapsule(capsule.id)}
-                    title="点击提前解锁"
-                    style={{ cursor: 'pointer' }}
                   />
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
-              <div className="empty-message">目前已经没有未解锁的capsule啦，快去创建一个吧！</div>
+              <div className="empty-message">
+                <FontAwesomeIcon icon={faFeatherAlt} size="3x" style={{ marginBottom: '1rem', opacity: 0.6, color: 'var(--gray-400)' }}/>
+                <span>目前没有未解锁的拾光纪</span>
+                <span style={{fontSize: '0.9rem', color: 'var(--gray-500)', marginTop: '0.5rem'}}>快去创建一个吧！</span>
+              </div>
             )}
           </div>
         </div>

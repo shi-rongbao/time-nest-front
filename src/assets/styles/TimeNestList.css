@@ -30,9 +30,9 @@ html, body, #root {
 }
 
 .time-nest-list-container {
-  max-width: 800px;
+  width: 100%; /* 确保容器宽度为100% */
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 0 20px; /* 修改padding：移除顶部padding，保留底部padding */
   min-height: 100vh;
   background-color: #f8fafc;
   display: flex;
@@ -48,6 +48,7 @@ html, body, #root {
   flex-direction: column;
   position: relative;
   overflow-y: visible;
+  padding: 0 20px; /* 将左右padding应用到这里 */
 }
 
 /* 确保页面内容区域填满整个容器 */

@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFeatherAlt, faEnvelope, faImage, faCalendarAlt, faGlobe, faLock, faArrowLeft, faClock, faFilter, faTag, faExclamationTriangle, faCheckCircle, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faFeatherAlt, faEnvelope, faImage, faCalendarAlt, faGlobe, faLock, faArrowLeft, faClock, faFilter, faTag, faExclamationTriangle, faCheckCircle, faTimesCircle, faInfoCircle, faArrowUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
 import '../../assets/styles/TimeNestList.css';
+import '../../assets/styles/TimeNestGrid.css';
 import LockIcon from '../../assets/images/lock-icon.png';
+import TimeNestCard from '../TimeNestCard';
+import LikeIcon from "../../assets/images/like-icon.png";
+import FriendIcon from "../../assets/images/friend-icon.png";
+import MessageIcon from "../../assets/images/message-icon.png";
+import { getCachedAvatar, cacheAvatar } from "../../utils/cacheUtils";
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -69,12 +75,9 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
 const MyTimeNestList = () => {
   const [nestList, setNestList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    size: 5, // 默认分页大小改为5
-    total: 0,
-    pages: 0
-  });
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState({
     nestType: 0, // 0-全部；1-胶囊；2-邮件；3-图片
     unlockedStatus: 2 // 2-全部；1-已解锁；0-未解锁
@@ -88,6 +91,9 @@ const MyTimeNestList = () => {
     message: '',
     nestId: null
   });
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(getCachedAvatar() || "");
+  const [hasUnread, setHasUnread] = useState(false);
   
   const history = useHistory();
 
@@ -124,15 +130,15 @@ const MyTimeNestList = () => {
     }
   }, []);
 
-  // 获取我发布的拾光纪条目列表 - 使用useCallback包装避免依赖循环
-  const fetchMyTimeNestList = useCallback(async (page = 1) => {
+  // 获取我发布的拾光纪条目列表
+  const fetchMyTimeNestList = useCallback(async (currentPage = 1, isLoadMore = false) => {
     try {
       setLoading(true);
       
       // 构建请求参数，当选择"全部"时不传递相应参数
       const requestParams = {
-        pageNum: page,
-        pageSize: pagination.size
+        pageNum: currentPage,
+        pageSize: pageSize
       };
       
       // 只有当不是"全部"选项时，才添加筛选条件
@@ -150,25 +156,113 @@ const MyTimeNestList = () => {
       }, 20000); // 使用20秒缓存
       
       if (response?.success && response.data) {
-        setNestList(response.data.records);
-        setPagination({
-          current: response.data.current,
-          size: response.data.size,
-          total: response.data.total,
-          pages: response.data.pages
-        });
+        // 如果是加载更多，则追加数据，否则替换数据
+        if (isLoadMore) {
+          setNestList(prev => [...prev, ...response.data.records]);
+        } else {
+          setNestList(response.data.records);
+        }
+        
+        // 判断是否还有更多数据
+        if (currentPage >= response.data.pages) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
       }
     } catch (error) {
       console.error("获取拾光纪条目列表出错:", error);
     } finally {
       setLoading(false);
     }
-  }, [pagination.size, filters, cachedFetch]);
+  }, [pageSize, filters, cachedFetch]);
 
-  // 只在filters变化时重新获取数据
+  // 获取未读消息状态
+  const fetchUnreadStatus = useCallback(async () => {
+    try {
+      const response = await cachedFetch("/user/getUnreadNoticeList", {}, 30000);
+      if (response?.success) {
+        setHasUnread(response.data && response.data.length > 0);
+      }
+    } catch (error) {
+      console.error("获取未读消息状态出错:", error);
+    }
+  }, [cachedFetch]);
+
+  // 获取用户信息
+  const fetchUserInfo = useCallback(async () => {
+    try {
+      const response = await cachedFetch("/user/getUserInfo", {}, 60000);
+      if (response?.success && response.data) {
+        if (response.data.avatarUrl) {
+          setAvatarUrl(response.data.avatarUrl);
+          cacheAvatar(response.data.avatarUrl);
+        }
+      }
+    } catch (error) {
+      console.error("获取用户信息出错:", error);
+    }
+  }, [cachedFetch]);
+
+  // 初始加载
   useEffect(() => {
-    fetchMyTimeNestList();
+    fetchUserInfo();
+    fetchUnreadStatus();
+  }, [fetchUserInfo, fetchUnreadStatus]);
+
+  // 初始加载和筛选条件变化时重新获取数据
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    fetchMyTimeNestList(1, false);
   }, [filters, fetchMyTimeNestList]);
+
+  // 检查是否需要自动加载更多内容
+  useEffect(() => {
+    // 如果内容不足以撑满页面且有更多数据可加载，自动加载更多
+    const checkContentHeight = () => {
+      if (
+        !loading && 
+        hasMore && 
+        document.documentElement.offsetHeight <= window.innerHeight &&
+        nestList.length > 0
+      ) {
+        loadMore();
+      }
+    };
+    
+    // 在内容加载后检查
+    checkContentHeight();
+    
+    // 窗口大小变化时也检查
+    window.addEventListener('resize', checkContentHeight);
+    return () => window.removeEventListener('resize', checkContentHeight);
+  }, [nestList, loading, hasMore]);
+  
+  // 监听滚动事件，实现无限滚动和返回顶部按钮
+  useEffect(() => {
+    const handleScroll = () => {
+      // 显示/隐藏返回顶部按钮
+      if (window.pageYOffset > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+      
+      // 无限滚动加载
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 300 &&
+        hasMore &&
+        !loading
+      ) {
+        loadMore();
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, loading]);
 
   // 显示通知的函数
   const showToast = (message, type = 'info') => {
@@ -185,6 +279,25 @@ const MyTimeNestList = () => {
     history.push('/home');
   };
 
+  // 处理好友列表点击
+  const handleFriendListClick = () => {
+    history.push('/friend-list');
+  };
+
+  // 处理消息点击
+  const handleMsgClick = () => {
+    // 跳转回首页并显示消息弹窗
+    history.push({
+      pathname: '/home',
+      state: { showMsgModal: true }
+    });
+  };
+
+  // 处理头像点击
+  const handleAvatarClick = () => {
+    history.push('/user-profile');
+  };
+
   // 处理筛选条件变更
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({
@@ -193,46 +306,23 @@ const MyTimeNestList = () => {
     }));
   };
 
-  // 处理分页
-  const handlePageChange = (page) => {
-    fetchMyTimeNestList(page);
-  };
-
-  // 格式化日期展示
-  const formatDate = (timestamp) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
-
-  // 根据类型获取对应图标
-  const getNestTypeIcon = (typeNum) => {
-    switch (typeNum) {
-      case 1:
-        return faFeatherAlt;
-      case 2:
-        return faEnvelope;
-      case 3:
-        return faImage;
-      default:
-        return faFeatherAlt;
-    }
-  };
-
-  // 根据类型数字返回对应文本
-  const mapNestType = (typeNum) => {
-    switch (typeNum) {
-      case 1:
-        return "胶囊";
-      case 2:
-        return "邮件";
-      case 3:
-        return "图片";
-      default:
-        return "胶囊";
-    }
+  // 加载更多数据
+  const loadMore = () => {
+    if (loading || !hasMore) return;
+    
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchMyTimeNestList(nextPage, true);
   };
   
+  // 返回顶部
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   // 查看拾光纪详情
   const handleViewTimeNestDetail = (id) => {
     history.push({
@@ -250,53 +340,205 @@ const MyTimeNestList = () => {
       nestId: id
     });
   };
-
+  
   // 确认解锁
   const confirmUnlockNest = async () => {
-    const id = confirmModal.nestId;
-    
     try {
-      const response = await cachedFetch("/timeNest/unlockNest", {
-        method: "POST",
-        body: JSON.stringify({
-          id: id
-        })
-      }, 0); // 不缓存解锁操作
+      setLoading(true);
       
-      if (response.success) {
+      const response = await api.fetchWithToken("/timeNest/unlockTimeNest", {
+        method: 'POST',
+        body: JSON.stringify({
+          nestId: confirmModal.nestId
+        })
+      });
+      
+      if (response?.success) {
+        // 更新列表中的对应项
+        setNestList(prevList => 
+          prevList.map(item => 
+            item.id === confirmModal.nestId 
+              ? { ...item, unlockedStatus: 1 } 
+              : item
+          )
+        );
+        
         showToast("拾光纪条目解锁成功！", "success");
-        // 刷新列表
-        fetchMyTimeNestList(pagination.current);
       } else {
-        showToast("解锁失败：" + (response.message || "未知错误"), "error");
+        showToast(response?.message || "解锁失败，请稍后重试", "error");
       }
     } catch (error) {
       console.error("解锁拾光纪条目出错:", error);
-      showToast("解锁请求失败，请稍后再试", "error");
+      showToast("解锁出错，请稍后重试", "error");
     } finally {
+      setLoading(false);
       // 关闭确认对话框
-      setConfirmModal({...confirmModal, isOpen: false});
+      setConfirmModal({
+        isOpen: false,
+        title: '',
+        message: '',
+        nestId: null
+      });
     }
   };
-
+  
   // 取消解锁
   const cancelUnlockNest = () => {
-    setConfirmModal({...confirmModal, isOpen: false});
+    setConfirmModal({
+      isOpen: false,
+      title: '',
+      message: '',
+      nestId: null
+    });
   };
 
   return (
     <div className="time-nest-list-container">
-      {/* Toast 通知 */}
-      {toast.show && (
-        <Toast 
-          message={toast.message}
-          type={toast.type}
-          onClose={closeToast}
-        />
-      )}
+      {/* Top Navigation Bar */}
+      <div className="nav-bar">
+        <div className="nav-tabs">
+          <button
+            className="nav-tab"
+            onClick={() => history.push('/home')}
+          >
+            首页
+          </button>
+          <button
+            className="nav-tab active"
+          >
+            我发布的拾光纪条目
+          </button>
+            <button 
+            className="nav-tab"
+            onClick={() => history.push('/public-time-nest-list')}
+            >
+            公开的拾光纪条目
+            </button>
+          </div>
+          
+        <div className="user-actions">
+          <div className="action-icon-wrapper">
+            <img src={LikeIcon || "/placeholder.svg"} alt="点赞过的内容" title="点赞过的内容" className="action-icon" />
+          </div>
+          <div className="action-icon-wrapper">
+            <img src={FriendIcon || "/placeholder.svg"} alt="好友列表" title="好友列表" className="action-icon" onClick={handleFriendListClick} style={{ cursor: 'pointer' }} />
+          </div>
+          <div className="action-icon-wrapper">
+            <img src={MessageIcon || "/placeholder.svg"} alt="我的消息" title="我的消息" className="action-icon" onClick={handleMsgClick} style={{ cursor: 'pointer' }} />
+            {hasUnread && <span className="msg-dot"></span>}
+          </div>
+          <div className="action-icon-wrapper">
+            <img
+              src={avatarUrl || "https://via.placeholder.com/40"}
+              alt="个人中心"
+              title="个人中心"
+              className="action-icon"
+              onClick={handleAvatarClick}
+              style={{ cursor: 'pointer' }}
+              onError={(e) => {
+                e.target.onerror = null
+                e.target.src = "https://via.placeholder.com/40"
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Slogan */}
+      <div style={{ width: '100%', textAlign: 'center', margin: '10px 0 18px 0', color: '#888', fontSize: '0.98rem', letterSpacing: '0.5px' }}>
+        封存此刻，寄往未来  <span style={{ fontSize: '0.92rem', marginLeft: '0.5em' }}>Save the moment. Send it to the future.</span>
+        </div>
+        
+      <div className="time-nest-content">
+        {/* 筛选区域 */}
+        <div className="filters-section">
+          <div className="filter-group">
+            <label>类型筛选:</label>
+            <select 
+              value={filters.nestType} 
+              onChange={(e) => handleFilterChange('nestType', parseInt(e.target.value))}
+            >
+              <option value={0}>全部类型</option>
+              <option value={1}>时光胶囊</option>
+              <option value={2}>邮件胶囊</option>
+              <option value={3}>图片胶囊</option>
+            </select>
+          </div>
+          
+          <div className="filter-group">
+            <label>状态筛选:</label>
+            <select 
+              value={filters.unlockedStatus} 
+              onChange={(e) => handleFilterChange('unlockedStatus', parseInt(e.target.value))}
+            >
+              <option value={2}>全部状态</option>
+              <option value={1}>已解锁</option>
+              <option value={0}>未解锁</option>
+            </select>
+          </div>
+        </div>
+        
+        {/* 卡片式瀑布流 */}
+        <div className="time-nest-grid-container">
+          {loading && nestList.length === 0 ? (
+            <div className="loading-indicator">
+              <div className="loading-spinner"></div>
+              <span>加载中...</span>
+            </div>
+          ) : nestList.length === 0 ? (
+            <div className="empty-list">暂无拾光纪条目，快去创建一个吧！</div>
+          ) : (
+            <div className="time-nest-grid">
+              {nestList.map((item) => (
+                <TimeNestCard 
+                  key={item.id} 
+                  data={item} 
+                  onClick={handleViewTimeNestDetail}
+                />
+              ))}
+              
+              {/* 加载更多指示器 */}
+              {loading && (
+                <div className="loading-indicator">
+                  <FontAwesomeIcon icon={faSpinner} spin /> 加载更多...
+                </div>
+              )}
+              
+              {/* 没有更多数据提示 */}
+              {!hasMore && nestList.length > 0 && (
+                <div className="no-more-data">
+                  没有更多拾光纪了~
+                </div>
+              )}
+              
+              {/* 手动加载更多按钮 */}
+              {hasMore && !loading && (
+                <div className="load-more-container">
+                  <button className="load-more-button" onClick={loadMore}>
+                    加载更多
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        {/* 返回顶部按钮 */}
+        {showBackToTop && (
+          <div 
+            className={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+            onClick={scrollToTop}
+          >
+            <FontAwesomeIcon icon={faArrowUp} />
+          </div>
+        )}
+        
+        {/* 底部留白 */}
+        <div className="footer-spacer"></div>
+      </div>
       
       {/* 确认对话框 */}
-      <ConfirmModal
+      <ConfirmModal 
         isOpen={confirmModal.isOpen}
         title={confirmModal.title}
         message={confirmModal.message}
@@ -304,134 +546,14 @@ const MyTimeNestList = () => {
         onCancel={cancelUnlockNest}
       />
       
-      <div className="time-nest-content">
-        <div className="header-section">
-          <div className="back-button-container">
-            <button 
-              className="public-nest-back-button"
-              onClick={handleBackToHome}
-            >
-              返回首页
-            </button>
-          </div>
-          
-          <h1 className="page-title">我发布的拾光纪条目</h1>
-        </div>
-
-        <div className="filters-section">
-          <div className="filter-group">
-            <label><FontAwesomeIcon icon={faTag} style={{ marginRight: '8px' }} />类型:</label>
-            <select 
-              value={filters.nestType} 
-              onChange={(e) => handleFilterChange('nestType', parseInt(e.target.value))}
-            >
-              <option value={0}>全部</option>
-              <option value={1}>胶囊</option>
-              <option value={2}>邮件</option>
-              <option value={3}>图片</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label><FontAwesomeIcon icon={faFilter} style={{ marginRight: '8px' }} />状态:</label>
-            <select 
-              value={filters.unlockedStatus} 
-              onChange={(e) => handleFilterChange('unlockedStatus', parseInt(e.target.value))}
-            >
-              <option value={2}>全部</option>
-              <option value={0}>未解锁</option>
-              <option value={1}>已解锁</option>
-            </select>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="loading-container">加载中...</div>
-        ) : nestList.length > 0 ? (
-          <div className="time-nest-list">
-            {nestList.map(nest => (
-              <div 
-                key={nest.id} 
-                className="time-nest-item"
-                onClick={() => handleViewTimeNestDetail(nest.id)}
-              >
-                <div className="time-nest-header">
-                  <h3 className="time-nest-title">
-                    <FontAwesomeIcon 
-                      icon={getNestTypeIcon(nest.nestType)} 
-                      style={{ marginRight: '0.5rem', opacity: 0.8 }} 
-                    />
-                    {nest.nestTitle}
-                  </h3>
-                  <span className="time-nest-type">
-                    {nest.unlockedStatus === 1 ? "已解锁" : (
-                      <span style={{ display: 'flex', alignItems: 'center' }}>
-                        {nest.unlockedStatus === 0 && (
-                          <img 
-                            src={LockIcon} 
-                            alt="未解锁" 
-                            style={{ width: '16px', height: '16px', marginRight: '5px', cursor: 'pointer' }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // 阻止事件冒泡
-                              handleUnlockNest(nest.id);
-                            }}
-                            title="点击提前解锁"
-                          />
-                        )}
-                        未解锁
-                      </span>
-                    )}
-                  </span>
-                </div>
-                
-                <div className="time-nest-content-preview">
-                  {nest.nestContent.length > 100 
-                    ? `${nest.nestContent.substring(0, 100)}...` 
-                    : nest.nestContent}
-                </div>
-                
-                <div className="time-nest-footer">
-                  <span className="time-nest-date">
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '0.3rem' }} />
-                    创建于: {formatDate(nest.createdAt)}
-                  </span>
-                  <span className="time-nest-unlock-time">
-                    <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem' }} />
-                    解锁时间: {formatDate(nest.unlockTime)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-list">暂无拾光纪条目，快去创建一个吧！</div>
-        )}
-
-        {/* 分页控件 */}
-        {nestList.length > 0 && pagination.pages > 1 && (
-          <div className="pagination">
-            <button 
-              className="pagination-btn"
-              disabled={pagination.current <= 1}
-              onClick={() => handlePageChange(pagination.current - 1)}
-            >
-              上一页
-            </button>
-            <span className="pagination-info">
-              第 {pagination.current} 页 / 共 {pagination.pages} 页 (总计 {pagination.total} 条)
-            </span>
-            <button 
-              className="pagination-btn"
-              disabled={pagination.current >= pagination.pages}
-              onClick={() => handlePageChange(pagination.current + 1)}
-            >
-              下一页
-            </button>
-          </div>
-        )}
-        
-        {/* 底部留白 */}
-        <div className="footer-spacer"></div>
-      </div>
+      {/* Toast通知 */}
+      {toast.show && (
+        <Toast 
+          message={toast.message}
+          type={toast.type}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 };

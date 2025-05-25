@@ -6,6 +6,8 @@ import { useHistory } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getCachedAvatar, cacheAvatar, clearAvatarCache } from '../../utils/cacheUtils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const UserProfile = () => {
     const [userInfo, setUserInfo] = useState({
@@ -202,8 +204,8 @@ const UserProfile = () => {
         setShowModal(true);
     };
 
-    const handleBackToHome = () => {
-        history.push('/home');
+    const handleGoBack = () => {
+        history.goBack();
     };
 
     const EditableText = ({ value = '', onChange, name }) => {
@@ -252,13 +254,11 @@ const UserProfile = () => {
 
     return (
         <div className="user-profile-container">
-            <ToastContainer />
+            <ToastContainer position="top-center" autoClose={2000} />
             <div className="profile-header">
-                <button className="back-button" onClick={handleBackToHome} title="返回首页">
-                    <svg className="back-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                <button className="back-button" onClick={handleGoBack}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="back-icon" />
+                    <span style={{ marginLeft: '8px' }}>返回</span>
                 </button>
                 <h2>用户信息</h2>
             </div>
