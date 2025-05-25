@@ -2,9 +2,11 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
 }
 
-.back-button-container {
+/* 注释掉旧的返回按钮样式，使用TimeNestList.css中的样式 */
+/* .back-button-container {
   margin-bottom: 16px;
 }
 
@@ -27,6 +29,20 @@
 
 .back-button span {
   margin-left: 8px;
+} */
+
+/* 添加header-section样式，与列表页一致 */
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  margin-bottom: 20px;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 60px;
+  position: relative;
 }
 
 .time-nest-detail-card {

@@ -43,9 +43,13 @@ body {
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.back-button {
+/* 注释掉旧的back-button样式，使用TimeNestList.css中的public-nest-back-button */
+/* .back-button {
   display: flex;
   align-items: center;
   background: none;
@@ -67,7 +71,7 @@ body {
 
 .back-button span {
   margin-left: 8px;
-}
+} */
 
 .title-container {
   flex: 1;
@@ -88,10 +92,10 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: transparent;
+  padding: 16px 0;
+  border-radius: 0;
+  box-shadow: none;
   margin-bottom: 24px;
   max-width: 1200px;
   margin-left: auto;
@@ -281,40 +285,6 @@ body {
   transform: scale(1.2);
 }
 
-/* 分页控件 */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 32px;
-  gap: 16px;
-  padding-bottom: 40px;
-}
-
-.page-button {
-  padding: 8px 16px;
-  background-color: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #1565c0;
-}
-
-.page-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.page-info {
-  font-size: 14px;
-  color: #666;
-}
-
 /* 空状态和加载状态 */
 .empty-message {
   text-align: center;
@@ -392,11 +362,6 @@ body {
     align-items: flex-start;
     padding: 10px 0;
     margin-bottom: 15px;
-  }
-  
-  .back-button {
-    margin-bottom: 15px;
-    position: static;
   }
   
   .title-container {

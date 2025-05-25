@@ -1,14 +1,99 @@
+/* 添加全局背景样式 */
+body {
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
+html, body, #root {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  height: auto !important;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  height: auto !important;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
 .time-nest-list-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  overflow-y: visible;
+}
+
+.time-nest-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: visible;
+}
+
+/* 确保页面内容区域填满整个容器 */
+#root, #app {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* 头部区域样式 */
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  margin-bottom: 20px;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 60px; /* 确保足够的高度 */
+  position: relative; /* 添加相对定位 */
+}
+
+.back-button-container {
+  position: absolute; /* 使用绝对定位 */
+  left: 0;
+  top: 50%; /* 垂直居中 */
+  transform: translateY(-50%); /* 垂直居中 */
+  margin: 0;
+  padding: 0;
+  height: auto;
 }
 
 .page-title {
   text-align: center;
-  margin-bottom: 30px;
+  margin: 0 auto; /* 水平居中 */
   color: var(--primary-color, #4a90e2);
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+  position: absolute; /* 使用绝对定位 */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); /* 水平和垂直居中 */
+  width: auto;
+  height: auto;
 }
 
 .loading-container {
@@ -16,6 +101,9 @@
   padding: 30px;
   font-size: 1.2rem;
   color: #888;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .error-container {
@@ -26,6 +114,7 @@
   margin: 20px 0;
   color: #e53935;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.1);
 }
 
 .empty-list {
@@ -33,6 +122,9 @@
   padding: 40px 0;
   color: #888;
   font-size: 1.1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .time-nest-list {
@@ -44,42 +136,46 @@
 .time-nest-item {
   background-color: white;
   border-radius: 8px;
-  padding: 15px;
+  padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
   cursor: pointer;
+  border: 1px solid #e2e8f0;
 }
 
 .time-nest-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #4a90e2;
 }
 
 .time-nest-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .time-nest-title {
   margin: 0;
   font-size: 1.3rem;
-  color: #333;
+  color: #2d3748;
+  font-weight: 600;
 }
 
 .time-nest-type {
   background-color: #f0f7ff;
   color: #4a90e2;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .time-nest-content-preview {
-  color: #666;
+  color: #4a5568;
   margin-bottom: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
   font-size: 0.95rem;
 }
 
@@ -88,9 +184,9 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  color: #888;
-  border-top: 1px solid #eee;
-  padding-top: 10px;
+  color: #718096;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 15px;
 }
 
 .time-nest-date {
@@ -106,7 +202,8 @@
 }
 
 .time-nest-unlock-time {
-  color: #555;
+  color: #4a5568;
+  font-weight: 500;
 }
 
 .pagination {
@@ -115,21 +212,27 @@
   align-items: center;
   margin-top: 30px;
   gap: 15px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .pagination-btn {
-  background-color: #f5f5f5;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
-  color: #333;
+  color: #4a5568;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: #e0e0e0;
+  background-color: #4a90e2;
+  color: white;
+  border-color: #4a90e2;
 }
 
 .pagination-btn:disabled {
@@ -138,43 +241,146 @@
 }
 
 .pagination-info {
-  color: #666;
+  color: #4a5568;
+  font-size: 0.9rem;
 }
 
-.back-button-container {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.back-button {
-  background-color: transparent;
+.public-nest-back-button {
+  background-color: #f0f7ff;
   border: 1px solid #4a90e2;
   color: #4a90e2;
-  padding: 8px 20px;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: none;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  position: static;
+  transform: none;
+  font-size: 14px;
+  height: 36px; /* 固定高度 */
+  line-height: 1;
 }
 
-.back-button:hover {
+.public-nest-back-button:hover {
   background-color: #4a90e2;
   color: white;
+  transform: none;
+  box-shadow: none;
+  transition: none;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .time-nest-list-container {
-    padding: 15px;
+    padding: 10px 10px 30px 10px;
+    overflow-y: visible;
   }
   
   .time-nest-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 8px;
   }
   
-  .time-nest-status {
-    margin: 5px 0;
+  .time-nest-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
+  
+  .time-nest-type {
+    align-self: flex-start;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .pagination-info {
+    order: -1;
+  }
+  
+  body, html, #root {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 移动设备上的头部样式调整 */
+  .header-section {
+    min-height: 70px; /* 增加高度以容纳标题和按钮 */
+    padding: 15px 0;
+    margin-bottom: 15px;
+  }
+  
+  .page-title {
+    font-size: 1.4rem;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    left: 0;
+    top: 0;
+    transform: none;
+    margin-top: 40px; /* 为按钮留出空间 */
+  }
+  
+  .back-button-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: none;
+  }
+  
+  .public-nest-back-button {
+    padding: 6px 12px;
+    font-size: 13px;
+    height: 32px;
+  }
+}
+
+/* 筛选区域样式 */
+.filters-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+}
+
+.filter-group label {
+  margin-right: 8px;
+  font-weight: 500;
+  color: #4a5568;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  min-width: 100px;
+  color: #4a5568;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-group select:hover {
+  border-color: #4a90e2;
+}
+
+/* 底部留白 */
+.footer-spacer {
+  flex-grow: 1;
+  min-height: 40px;
 } 

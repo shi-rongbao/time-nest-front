@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faLock, faUnlock, faClock, faUser, faEnvelope, faTag, faInfoCircle, faCheckCircle, faTimesCircle, faImage } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
 import '../../assets/styles/TimeNestDetail.css';
+import '../../assets/styles/TimeNestList.css';
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -161,20 +162,17 @@ const TimeNestDetail = () => {
         />
       )}
       
-      <div className="back-button-container">
-        <button className="back-button" onClick={goBack}>
-          <FontAwesomeIcon icon={faArrowLeft} />
-          <span>返回</span>
-        </button>
+      <div className="header-section">
+        <div className="back-button-container">
+          <button className="public-nest-back-button" onClick={goBack}>
+            <span>返回</span>
+          </button>
+        </div>
+        
+        <h1 className="page-title">{nestData.nestTitle}</h1>
       </div>
 
       <div className="time-nest-detail-card">
-        <div className="time-nest-header">
-          <h2 className="nest-title">{nestData.nestTitle}</h2>
-        </div>
-
-        <div className="divider"></div>
-
         <div className="time-nest-content">
           <h4 className="content-title">内容</h4>
           <p className="content-text">{nestData.nestContent}</p>

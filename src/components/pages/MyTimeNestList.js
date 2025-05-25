@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFeatherAlt, faEnvelope, faImage, faCalendarAlt, faGlobe, faLock, faArrowLeft, faClock, faFilter, faTag, faExclamationTriangle, faCheckCircle, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
-import '../../assets/styles/MyTimeNestList.css';
+import '../../assets/styles/TimeNestList.css';
 import LockIcon from '../../assets/images/lock-icon.png';
 
 // Toast 通知组件
@@ -285,7 +285,7 @@ const MyTimeNestList = () => {
   };
 
   return (
-    <div className="my-time-nest-list-container">
+    <div className="time-nest-list-container">
       {/* Toast 通知 */}
       {toast.show && (
         <Toast 
@@ -304,71 +304,72 @@ const MyTimeNestList = () => {
         onCancel={cancelUnlockNest}
       />
       
-      <div className="header">
-        <button className="back-button" onClick={handleBackToHome}>
-          <FontAwesomeIcon icon={faArrowLeft} />
-          <span>返回</span>
-        </button>
-        <div className="title-container">
+      <div className="time-nest-content">
+        <div className="header-section">
+          <div className="back-button-container">
+            <button 
+              className="public-nest-back-button"
+              onClick={handleBackToHome}
+            >
+              返回首页
+            </button>
+          </div>
+          
           <h1 className="page-title">我发布的拾光纪条目</h1>
         </div>
-      </div>
 
-      <div className="filters-section">
-        <div className="filter-group">
-          <label><FontAwesomeIcon icon={faTag} style={{ marginRight: '8px' }} />类型:</label>
-          <select 
-            value={filters.nestType} 
-            onChange={(e) => handleFilterChange('nestType', parseInt(e.target.value))}
-          >
-            <option value={0}>全部</option>
-            <option value={1}>胶囊</option>
-            <option value={2}>邮件</option>
-            <option value={3}>图片</option>
-          </select>
-        </div>
-        <div className="filter-group">
-          <label><FontAwesomeIcon icon={faFilter} style={{ marginRight: '8px' }} />状态:</label>
-          <select 
-            value={filters.unlockedStatus} 
-            onChange={(e) => handleFilterChange('unlockedStatus', parseInt(e.target.value))}
-          >
-            <option value={2}>全部</option>
-            <option value={0}>未解锁</option>
-            <option value={1}>已解锁</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="nest-list">
-        {loading ? (
-          <div className="loading-message">
-            <div className="loading-spinner"></div>
-            加载中...
+        <div className="filters-section">
+          <div className="filter-group">
+            <label><FontAwesomeIcon icon={faTag} style={{ marginRight: '8px' }} />类型:</label>
+            <select 
+              value={filters.nestType} 
+              onChange={(e) => handleFilterChange('nestType', parseInt(e.target.value))}
+            >
+              <option value={0}>全部</option>
+              <option value={1}>胶囊</option>
+              <option value={2}>邮件</option>
+              <option value={3}>图片</option>
+            </select>
           </div>
+          <div className="filter-group">
+            <label><FontAwesomeIcon icon={faFilter} style={{ marginRight: '8px' }} />状态:</label>
+            <select 
+              value={filters.unlockedStatus} 
+              onChange={(e) => handleFilterChange('unlockedStatus', parseInt(e.target.value))}
+            >
+              <option value={2}>全部</option>
+              <option value={0}>未解锁</option>
+              <option value={1}>已解锁</option>
+            </select>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="loading-container">加载中...</div>
         ) : nestList.length > 0 ? (
-          nestList.map(nest => (
-            <div key={nest.id} className="nest-item">
-              <div className="nest-info" onClick={() => handleViewTimeNestDetail(nest.id)}>
-                <div className="nest-header">
-                  <div className="nest-title">
+          <div className="time-nest-list">
+            {nestList.map(nest => (
+              <div 
+                key={nest.id} 
+                className="time-nest-item"
+                onClick={() => handleViewTimeNestDetail(nest.id)}
+              >
+                <div className="time-nest-header">
+                  <h3 className="time-nest-title">
                     <FontAwesomeIcon 
                       icon={getNestTypeIcon(nest.nestType)} 
                       style={{ marginRight: '0.5rem', opacity: 0.8 }} 
                     />
                     {nest.nestTitle}
-                  </div>
-                  <div className="nest-badge">
-                    {nest.unlockedStatus === 1 ? (
-                      <span className="unlocked-badge">已解锁</span>
-                    ) : (
-                      <span className="locked-badge">
-                        {/* 将锁图标放在"未解锁"字样左边 */}
+                  </h3>
+                  <span className="time-nest-type">
+                    {nest.unlockedStatus === 1 ? "已解锁" : (
+                      <span style={{ display: 'flex', alignItems: 'center' }}>
                         {nest.unlockedStatus === 0 && (
                           <img 
                             src={LockIcon} 
                             alt="未解锁" 
-                            className="lock-badge-icon" 
+                            style={{ width: '16px', height: '16px', marginRight: '5px', cursor: 'pointer' }}
                             onClick={(e) => {
                               e.stopPropagation(); // 阻止事件冒泡
                               handleUnlockNest(nest.id);
@@ -379,67 +380,58 @@ const MyTimeNestList = () => {
                         未解锁
                       </span>
                     )}
-                  </div>
-                </div>
-                <div className="nest-subtitle">
-                  <span className="nest-type">
-                    <FontAwesomeIcon icon={faTag} style={{ marginRight: '0.3rem' }} />
-                    {mapNestType(nest.nestType)}
-                  </span>
-                  <span className="nest-date">
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '0.3rem' }} />
-                    创建于 {formatDate(nest.createdAt)}
-                  </span>
-                  <span className="nest-privacy">
-                    <FontAwesomeIcon 
-                      icon={nest.publicStatus === 1 ? faGlobe : faLock} 
-                      style={{ marginRight: '0.3rem' }} 
-                    />
-                    {nest.publicStatus === 1 ? "公开" : "私密"}
                   </span>
                 </div>
-                <div className="nest-content-preview">
+                
+                <div className="time-nest-content-preview">
                   {nest.nestContent.length > 100 
                     ? `${nest.nestContent.substring(0, 100)}...` 
                     : nest.nestContent}
                 </div>
-                <div className="nest-unlock-time">
-                  <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem' }} />
-                  解锁时间: {formatDate(nest.unlockTime)}
+                
+                <div className="time-nest-footer">
+                  <span className="time-nest-date">
+                    <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '0.3rem' }} />
+                    创建于: {formatDate(nest.createdAt)}
+                  </span>
+                  <span className="time-nest-unlock-time">
+                    <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem' }} />
+                    解锁时间: {formatDate(nest.unlockTime)}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <div className="empty-message">暂无拾光纪条目，快去创建一个吧！</div>
+          <div className="empty-list">暂无拾光纪条目，快去创建一个吧！</div>
         )}
-      </div>
 
-      {/* 分页控件 */}
-      {nestList.length > 0 && pagination.pages > 1 && (
-        <div className="pagination">
-          <button 
-            className="page-button"
-            disabled={pagination.current <= 1}
-            onClick={() => handlePageChange(pagination.current - 1)}
-          >
-            上一页
-          </button>
-          <span className="page-info">
-            第 {pagination.current} 页 / 共 {pagination.pages} 页
-          </span>
-          <button 
-            className="page-button"
-            disabled={pagination.current >= pagination.pages}
-            onClick={() => handlePageChange(pagination.current + 1)}
-          >
-            下一页
-          </button>
-        </div>
-      )}
-      
-      {/* 底部留白 */}
-      <div className="footer-spacer"></div>
+        {/* 分页控件 */}
+        {nestList.length > 0 && pagination.pages > 1 && (
+          <div className="pagination">
+            <button 
+              className="pagination-btn"
+              disabled={pagination.current <= 1}
+              onClick={() => handlePageChange(pagination.current - 1)}
+            >
+              上一页
+            </button>
+            <span className="pagination-info">
+              第 {pagination.current} 页 / 共 {pagination.pages} 页 (总计 {pagination.total} 条)
+            </span>
+            <button 
+              className="pagination-btn"
+              disabled={pagination.current >= pagination.pages}
+              onClick={() => handlePageChange(pagination.current + 1)}
+            >
+              下一页
+            </button>
+          </div>
+        )}
+        
+        {/* 底部留白 */}
+        <div className="footer-spacer"></div>
+      </div>
     </div>
   );
 };
