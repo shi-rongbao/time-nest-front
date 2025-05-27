@@ -12,6 +12,7 @@ import { getCachedAvatar, cacheAvatar } from "../../utils/cacheUtils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendarAlt, faClock, faFeatherAlt, faEnvelope, faLock, faImage, faGlobe, faLockOpen, faPencilAlt, faMagic, faCheckCircle, faTimesCircle, faInfoCircle, faExclamationTriangle, faUpload, faUsers, faUserLock, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import TimeNestCard from "../TimeNestCard"
+import Banner from "../layout/Banner"
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -67,6 +68,101 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
         <div className="confirm-footer">
           <button className="btn-cancel" onClick={onCancel}>取消</button>
           <button className="btn-confirm" onClick={onConfirm}>确认</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 消息弹窗组件
+const MessageModal = ({ isOpen, onClose, unreadList, onProcessRequest, onTimeNestNotice, msgLoadingId }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ maxWidth: 400, width: '95%' }}>
+        <h3 style={{ margin: '0 0 1rem 0', color: '#1976d2' }}>通知中心</h3>
+        {unreadList.length === 0 ? (
+          <div style={{ color: '#888', padding: '2rem 0', textAlign: 'center' }}>暂无新通知</div>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {unreadList.map(item => {
+              // 拾光纪解锁通知
+              if (item.noticeType === 0 || item.noticeType === 2) {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        「{item.timeNestTitle || '拾光纪'}」在刚刚解锁啦！快去查看吧！
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="confirm-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, true)}
+                      >去查看</button>
+                      <button className="cancel-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, false)}
+                      >晚点再看</button>
+                    </div>
+                  </li>
+                );
+              }
+              // 好友申请通知
+              else if (item.noticeType === 1) {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        {item.requestUserAccount}想添加你为好友，确认要添加吗？
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="confirm-button" style={{ minWidth: 70 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onProcessRequest(item, 1)}
+                      >接受</button>
+                      <button className="cancel-button" style={{ minWidth: 70 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onProcessRequest(item, 2)}
+                      >拒绝</button>
+                    </div>
+                  </li>
+                );
+              }
+              // 预留其他类型通知的扩展空间
+              else {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        {item.title || '新通知'} (类型: {item.noticeType})
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="cancel-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, false)}
+                      >我知道了</button>
+                    </div>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        )}
+        <div className="modal-actions" style={{ marginTop: 16 }}>
+          <button className="cancel-button" onClick={onClose}>关闭</button>
         </div>
       </div>
     </div>
@@ -228,7 +324,8 @@ const Home = () => {
       setLoading(true);
       setUpcomingCapsules([]); 
       // API不再需要分页参数，后端应返回最多6条
-      const response = await cachedFetch(`/timeNest/queryMyUnlockingNestList`, {}, 60000); 
+      // 将缓存时间改为0以禁用此调用的缓存，进行测试
+      const response = await cachedFetch(`/timeNest/queryMyUnlockingNestList`, {}, 0); 
       
       if (response?.success && response.data) {
         // 假设后端直接返回数组，或包含list的结构，取前6条
@@ -507,10 +604,10 @@ const Home = () => {
       return;
     }
 
-    // 验证文件大小（限制为5MB）
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // 验证文件大小（限制为2MB）
+    const maxSize = 2 * 1024 * 1024; // 2MB
     if (file.size > maxSize) {
-      showToast("图片大小不能超过5MB", "error");
+      showToast("图片大小不能超过2MB", "error");
       return;
     }
 
@@ -808,6 +905,11 @@ const Home = () => {
     }
   }, [cachedFetch, fetchUnread, fetchFriendList]);
 
+  // 处理AI一键总结点击
+  const handleAISummary = () => {
+    showToast("功能暂未上线，敬请期待", "info");
+  };
+
   return (
     <div className="home-container">
       {/* Toast 通知 */}
@@ -828,57 +930,19 @@ const Home = () => {
         onCancel={cancelUnlockCapsule}
       />
       
-      {/* Top Navigation Bar */}
-      <div className="nav-bar">
-        <div className="nav-tabs">
-          <button
-            className={`nav-tab ${activeTab === "capsule" ? "active" : ""}`}
-            onClick={() => setActiveTab("capsule")}
-          >
-            首页
-          </button>
-          <button
-            className="nav-tab"
-            onClick={() => history.push('/my-time-nest-list')}
-          >
-            我发布的拾光纪条目
-          </button>
-          <button
-            className={`nav-tab ${activeTab === "public-capsule" ? "active" : ""}`}
-            onClick={() => history.push('/public-time-nest-list')}
-          >
-            公开的拾光纪条目
-          </button>
-        </div>
+      {/* 使用 Banner 组件替换原有导航栏 */}
+      <Banner hasUnread={hasUnread} onMessageClick={handleMsgClick} />
 
-        <div className="user-actions">
-          <div className="action-icon-wrapper">
-            <img src={LikeIcon || "/placeholder.svg"} alt="点赞过的内容" title="点赞过的内容" className="action-icon" />
-          </div>
-          <div className="action-icon-wrapper">
-            <img src={FriendIcon || "/placeholder.svg"} alt="好友列表" title="好友列表" className="action-icon" onClick={handleFriendListClick} style={{ cursor: 'pointer' }} />
-          </div>
-          <div className="action-icon-wrapper">
-            <img src={MessageIcon || "/placeholder.svg"} alt="我的消息" title="我的消息" className="action-icon" onClick={handleMsgClick} style={{ cursor: 'pointer' }} />
-            {hasUnread && <span className="msg-dot"></span>}
-          </div>
-          <div className="action-icon-wrapper">
-            <img
-              src={avatarUrl || "https://via.placeholder.com/40"}
-              alt="个人中心"
-              title="个人中心"
-              className="action-icon"
-              onClick={handleAvatarClick}
-              style={{ cursor: 'pointer' }}
-              onError={(e) => {
-                e.target.onerror = null
-                e.target.src = "https://via.placeholder.com/40"
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
+      {/* 消息弹窗 */}
+      <MessageModal
+        isOpen={showMsgModal}
+        onClose={handleCloseMsgModal}
+        unreadList={unreadList}
+        onProcessRequest={handleProcessRequest}
+        onTimeNestNotice={handleTimeNestNotice}
+        msgLoadingId={msgLoadingId}
+      />
+      
       {/* Slogan */}
       <div style={{ width: '100%', textAlign: 'center', margin: '10px 0 18px 0', color: '#888', fontSize: '0.98rem', letterSpacing: '0.5px' }}>
         封存此刻，寄往未来  <span style={{ fontSize: '0.92rem', marginLeft: '0.5em' }}>Save the moment. Send it to the future.</span>
@@ -1026,7 +1090,7 @@ const Home = () => {
               ></textarea>
             </div>
 
-            <button type="button" className="ai-button">
+            <button type="button" className="ai-button" onClick={handleAISummary}>
               <span className="ai-icon">
                 <FontAwesomeIcon icon={faMagic} />
               </span>
@@ -1131,7 +1195,8 @@ const Home = () => {
                       unlockedStatus: 0, 
                       publicStatus: capsule.publicStatus,
                       coverImage: capsule.coverImage || null,
-                      unlockTime: capsule.unlockTime // 传递unlockTime给TimeNestCard用于显示
+                      unlockTime: capsule.unlockTime, // 传递unlockTime给TimeNestCard用于显示
+                      isLike: capsule.isLike // 添加 isLike 字段
                     }}
                     onClick={() => handleUnlockCapsule(capsule.id)}
                   />
@@ -1147,97 +1212,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-      {/* 消息弹窗 */}
-      {showMsgModal && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: 400, width: '95%' }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#1976d2' }}>通知中心</h3>
-            {unreadList.length === 0 ? (
-              <div style={{ color: '#888', padding: '2rem 0', textAlign: 'center' }}>暂无新通知</div>
-            ) : (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {unreadList.map(item => {
-                  // 拾光纪解锁通知
-                  if (item.noticeType === 0) {
-                    return (
-                      <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
-                        <div style={{ fontWeight: 500, marginBottom: 12 }}>
-                          <span style={{ display: 'block', marginBottom: 6 }}>
-                            「{item.timeNestTitle}」在刚刚解锁啦！快去查看吧！
-                          </span>
-                          <span style={{ fontSize: '0.8rem', color: '#777' }}>
-                            {item.createdAt}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                          <button className="confirm-button" style={{ minWidth: 80 }}
-                            disabled={msgLoadingId === item.id}
-                            onClick={() => handleTimeNestNotice(item, true)}
-                          >去查看</button>
-                          <button className="cancel-button" style={{ minWidth: 80 }}
-                            disabled={msgLoadingId === item.id}
-                            onClick={() => handleTimeNestNotice(item, false)}
-                          >晚点再看</button>
-                        </div>
-                      </li>
-                    );
-                  }
-                  // 好友申请通知
-                  else if (item.noticeType === 1) {
-                    return (
-                      <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
-                        <div style={{ fontWeight: 500, marginBottom: 12 }}>
-                          <span style={{ display: 'block', marginBottom: 6 }}>
-                            {item.requestUserAccount}想添加你为好友，确认要添加吗？
-                          </span>
-                          <span style={{ fontSize: '0.8rem', color: '#777' }}>
-                            {item.createdAt}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                          <button className="confirm-button" style={{ minWidth: 70 }}
-                            disabled={msgLoadingId === item.id}
-                            onClick={() => handleProcessRequest(item, 1)}
-                          >接受</button>
-                          <button className="cancel-button" style={{ minWidth: 70 }}
-                            disabled={msgLoadingId === item.id}
-                            onClick={() => handleProcessRequest(item, 0)}
-                          >拒绝</button>
-                        </div>
-                      </li>
-                    );
-                  }
-                  // 预留其他类型通知的扩展空间
-                  else {
-                    return (
-                      <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
-                        <div style={{ fontWeight: 500, marginBottom: 12 }}>
-                          <span style={{ display: 'block', marginBottom: 6 }}>
-                            新通知 (类型: {item.noticeType})
-                          </span>
-                          <span style={{ fontSize: '0.8rem', color: '#777' }}>
-                            {item.createdAt}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                          <button className="cancel-button" style={{ minWidth: 80 }}
-                            disabled={msgLoadingId === item.id}
-                            onClick={() => handleTimeNestNotice(item, false)}
-                          >我知道了</button>
-                        </div>
-                      </li>
-                    );
-                  }
-                })}
-              </ul>
-            )}
-            <div className="modal-actions" style={{ marginTop: 16 }}>
-              <button className="cancel-button" onClick={handleCloseMsgModal}>关闭</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 好友选择器模态框 */}
       {showFriendSelector && (

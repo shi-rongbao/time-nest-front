@@ -11,6 +11,7 @@ import PublicTimeNestList from '../pages/PublicTimeNestList';
 import TimeNestDetail from '../pages/TimeNestDetail';
 import '../../assets/styles/App.css';
 import '../../assets/styles/LoginRegister.css';
+import MyLikedTimeNests from '../pages/MyLikedTimeNests';
 
 // 根路径下的token校验跳转组件
 function RootRedirect() {
@@ -48,6 +49,7 @@ function App() {
         <Router>
             <div className="app-container">
                 <Switch>
+                <Route path="/my-liked-nests" component={MyLikedTimeNests} />
                     <Route path="/" exact component={RootRedirect} />
                     <Route path="/login">
                         <div className="auth-page">

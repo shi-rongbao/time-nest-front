@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowUp, faSpinner, faCheckCircle, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
-import '../../assets/styles/TimeNestList.css';
-import '../../assets/styles/TimeNestGrid.css';
 import TimeNestCard from '../TimeNestCard';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faSpinner, faArrowUp, faCheckCircle, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import '../../assets/styles/TimeNestList.css'; // 使用与其他页面相同的主样式
+import '../../assets/styles/TimeNestGrid.css'; // 卡片网格样式
 import LikeIcon from "../../assets/images/like-icon.png";
 import FriendIcon from "../../assets/images/friend-icon.png";
 import MessageIcon from "../../assets/images/message-icon.png";
 import { getCachedAvatar, cacheAvatar } from "../../utils/cacheUtils";
 import Banner from "../layout/Banner";
+
+const PAGE_SIZE = 10;
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -144,12 +146,12 @@ const MessageModal = ({ isOpen, onClose, unreadList, onProcessRequest, onTimeNes
   );
 };
 
-function PublicTimeNestList() {
-    const [timeNests, setTimeNests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const MyLikedTimeNests = () => {
+    const [nests, setNests] = useState([]);
     const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [error, setError] = useState(null);
     const [showBackToTop, setShowBackToTop] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(getCachedAvatar() || "");
     const [hasUnread, setHasUnread] = useState(false);
@@ -157,38 +159,62 @@ function PublicTimeNestList() {
     const [showMsgModal, setShowMsgModal] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
     const [msgLoadingId, setMsgLoadingId] = useState(null);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
     
-    const pageSize = 10;
+    const observer = useRef();
     const history = useHistory();
     const pollingRef = useRef(null);
     const enablePolling = useRef(true);
-    const observer = useRef();
     
     // 使用apiCache进行缓存控制
     const apiCacheRef = useRef({});
 
-    // 最后一个元素的引用，用于无限滚动
-    const lastTimeNestElementRef = useCallback(node => {
-        if (loading || isFetchingMore || !hasMore) return;
-        if (observer.current) observer.current.disconnect();
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                loadMore();
-            }
-        });
-        if (node) observer.current.observe(node);
-    }, [loading, isFetchingMore, hasMore]);
-
     // 显示通知的函数
     const showToast = (message, type = 'info') => {
-        setToast({ show: true, message, type });
+      setToast({ show: true, message, type });
     };
 
     // 关闭通知的函数
     const closeToast = () => {
-        setToast({ ...toast, show: false });
+      setToast({ ...toast, show: false });
     };
+
+    // 加载更多数据 - 提前定义以避免引用错误
+    const loadMoreNests = useCallback(async (currentPage, isLoadMore = false) => {
+        if (loading || !hasMore) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await api.fetchWithToken('/timeNest/queryMyLikeTimeNestList', {
+                method: 'POST',
+                body: JSON.stringify({
+                    pageNum: currentPage,
+                    pageSize: PAGE_SIZE,
+                }),
+            });
+            if (response.success && response.data && response.data.records) {
+                if (isLoadMore) {
+                    setNests(prevNests => [...prevNests, ...response.data.records]);
+                } else {
+                    setNests(response.data.records);
+                }
+                setPage(currentPage + 1);
+                setHasMore(currentPage < response.data.pages);
+            } else {
+                throw new Error(response.message || '获取点赞列表失败');
+            }
+        } catch (err) {
+            setError(err.message);
+            if (currentPage === 1) setHasMore(false);
+        } finally {
+            setLoading(false);
+        }
+    }, [loading, hasMore]);
+    
+    // 加载更多数据函数
+    const loadMore = useCallback(() => {
+        if (loading || !hasMore) return;
+        loadMoreNests(page, true);
+    }, [loading, hasMore, page, loadMoreNests]);
 
     // 实现带缓存的API调用
     const cachedFetch = useCallback(async (url, options = {}, cacheTime = 30000) => {
@@ -201,7 +227,7 @@ function PublicTimeNestList() {
         }
         
         // 记录API请求
-        console.log('PublicTimeNestList发起API请求:', url);
+        console.log('MyLikedTimeNests发起API请求:', url);
         
         try {
             // 发起请求
@@ -219,7 +245,7 @@ function PublicTimeNestList() {
             throw error;
         }
     }, []);
-
+    
     // 获取未读消息状态
     const fetchUnreadStatus = useCallback(async () => {
         try {
@@ -321,44 +347,11 @@ function PublicTimeNestList() {
         };
     }, [fetchUnreadStatus]);
 
-    // 使用useCallback包装API请求函数，避免依赖循环
-    const fetchPublicTimeNests = useCallback(async (currentPage = 1, isLoadMore = false) => {
-        try {
-            setLoading(true);
-            const response = await api.queryPublicTimeNestList(currentPage, pageSize);
-            
-            if (response.success) {
-                // 如果是加载更多，则追加数据，否则替换数据
-                if (isLoadMore) {
-                    setTimeNests(prev => [...prev, ...response.data.records]);
-                } else {
-                    setTimeNests(response.data.records);
-                }
-                
-                // 判断是否还有更多数据
-                if (currentPage >= response.data.pages) {
-                    setHasMore(false);
-                } else {
-                    setHasMore(true);
-                }
-                
-                setError(null);
-            } else {
-                setError(response.message || '获取公开拾光纪列表失败');
-            }
-        } catch (err) {
-            setError('获取公开拾光纪列表时发生错误');
-            console.error('获取公开拾光纪列表错误:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, [pageSize]);
-
-    // 初始加载
     useEffect(() => {
-        fetchPublicTimeNests(1, false);
+        // 初始加载第一页
+        loadMoreNests(1, false);
         fetchUserInfo();
-    }, [fetchPublicTimeNests, fetchUserInfo]);
+    }, [loadMoreNests, fetchUserInfo]); 
 
     // 检查是否需要自动加载更多内容
     useEffect(() => {
@@ -368,7 +361,7 @@ function PublicTimeNestList() {
                 !loading && 
                 hasMore && 
                 document.documentElement.offsetHeight <= window.innerHeight &&
-                timeNests.length > 0
+                nests.length > 0
             ) {
                 loadMore();
             }
@@ -380,7 +373,7 @@ function PublicTimeNestList() {
         // 窗口大小变化时也检查
         window.addEventListener('resize', checkContentHeight);
         return () => window.removeEventListener('resize', checkContentHeight);
-    }, [timeNests, loading, hasMore]);
+    }, [nests, loading, hasMore, loadMore]);
 
     // 监听滚动事件，实现无限滚动和返回顶部按钮
     useEffect(() => {
@@ -405,20 +398,18 @@ function PublicTimeNestList() {
         
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [hasMore, loading]);
+    }, [hasMore, loading, loadMore]);
 
-    // 加载更多数据
-    const loadMore = () => {
-        if (loading || isFetchingMore || !hasMore) return;
-        
-        setIsFetchingMore(true);
-        const nextPage = page + 1;
-        setPage(nextPage);
-        fetchPublicTimeNests(nextPage, true)
-            .finally(() => {
-                setIsFetchingMore(false);
-            });
-    };
+    const lastNestElementRef = useCallback(node => {
+        if (loading) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore && !loading) {
+                loadMore();
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [loading, hasMore, loadMore]);
     
     // 返回顶部
     const scrollToTop = () => {
@@ -428,6 +419,10 @@ function PublicTimeNestList() {
         });
     };
 
+    const handleCardClick = (nestId) => {
+        history.push(`/time-nest-detail/${nestId}`);
+    };
+    
     // 处理好友列表点击
     const handleFriendListClick = () => {
         history.push('/friend-list');
@@ -450,7 +445,8 @@ function PublicTimeNestList() {
 
     // 处理点赞列表点击
     const handleLikedListClick = () => {
-        history.push('/my-liked-nests');
+        // 已经在点赞列表页面，可以刷新或者不做任何操作
+        loadMoreNests(1, false);
     };
     
     // 处理拾光纪解锁通知
@@ -510,10 +506,6 @@ function PublicTimeNestList() {
         }
     }, [cachedFetch, fetchUnreadStatus]);
 
-    const handleViewDetail = (id) => {
-        history.push(`/time-nest-detail/${id}`);
-    };
-
     return (
         <div className="time-nest-list">
             {/* 使用 Banner 组件 */}
@@ -539,60 +531,90 @@ function PublicTimeNestList() {
             />
             
             <div className="page-header">
-                <h1>公开的拾光纪</h1>
+                <h1>我点赞的拾光纪</h1>
             </div>
 
             <div className="time-nest-content">
-                {/* 卡片式瀑布流 */}
                 <div className="time-nest-grid-container">
-                    {loading && page === 1 ? (
-                        <div className="loading-container">
-                            <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" />
-                            <p>加载中...</p>
+                    {loading && nests.length === 0 ? (
+                        <div className="loading-indicator">
+                            <div className="loading-spinner"></div>
+                            <span>加载中...</span>
                         </div>
                     ) : error ? (
-                        <div className="error-container">
-                            <p>{error}</p>
-                        </div>
-                    ) : timeNests.length === 0 ? (
-                        <div className="empty-container">
-                            <p>暂无公开的拾光纪</p>
+                        <div className="error-container">{error}</div>
+                    ) : nests.length === 0 ? (
+                        <div className="empty-list">
+                            <FontAwesomeIcon icon={faHeart} size="3x" />
+                            <p>你还没有点赞过任何拾光纪哦</p>
                         </div>
                     ) : (
                         <div className="time-nest-grid">
-                            {timeNests.map((nest, index) => (
-                                <div 
-                                    key={nest.id} 
-                                    ref={index === timeNests.length - 1 ? lastTimeNestElementRef : null}
-                                    className="time-nest-card-wrapper"
-                                >
-                                    <TimeNestCard 
-                                        data={{
-                                            ...nest,
-                                            isLike: nest.isLike || 0 // 确保有 isLike 字段，默认为 0
-                                        }}
-                                        onClick={() => handleViewDetail(nest.id)}
-                                    />
+                            {nests.map((nest, index) => {
+                                const cardData = {
+                                    id: nest.id,
+                                    nestType: nest.nestType,
+                                    nestTitle: nest.nestTitle,
+                                    nestContent: nest.nestContent,
+                                    createdAt: nest.createdAt,
+                                    unlockedStatus: nest.unlockedStatus,
+                                    publicStatus: nest.publicStatus,
+                                    isLike: nest.isLike,
+                                    coverImage: nest.imageUrl || nest.coverImage || null,
+                                    unlockTime: nest.unlockTime,
+                                };
+                                
+                                if (nests.length === index + 1) {
+                                    return (
+                                        <div ref={lastNestElementRef} key={nest.id + '-liked'}>
+                                            <TimeNestCard data={cardData} onClick={() => handleCardClick(nest.id)} />
+                                        </div>
+                                    );
+                                }
+                                return <TimeNestCard key={nest.id + '-liked'} data={cardData} onClick={() => handleCardClick(nest.id)} />;
+                            })}
+                            
+                            {/* 加载更多指示器 */}
+                            {loading && (
+                                <div className="loading-indicator">
+                                    <FontAwesomeIcon icon={faSpinner} spin /> 加载更多...
                                 </div>
-                            ))}
-                            {isFetchingMore && (
-                                <div className="loading-more">
-                                    <FontAwesomeIcon icon={faSpinner} spin />
-                                    <span>加载更多...</span>
+                            )}
+                            
+                            {/* 没有更多数据提示 */}
+                            {!loading && !hasMore && nests.length > 0 && (
+                                <div className="no-more-data">
+                                    没有更多拾光纪了~
+                                </div>
+                            )}
+                            
+                            {/* 手动加载更多按钮 */}
+                            {hasMore && !loading && (
+                                <div className="load-more-container">
+                                    <button className="load-more-button" onClick={loadMore}>
+                                        加载更多
+                                    </button>
                                 </div>
                             )}
                         </div>
                     )}
                 </div>
+                
+                {/* 返回顶部按钮 */}
+                {showBackToTop && (
+                    <div 
+                        className={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+                        onClick={scrollToTop}
+                    >
+                        <FontAwesomeIcon icon={faArrowUp} />
+                    </div>
+                )}
+                
+                {/* 底部留白 */}
+                <div className="footer-spacer"></div>
             </div>
-
-            {showBackToTop && (
-                <button className="back-to-top" onClick={scrollToTop}>
-                    <FontAwesomeIcon icon={faArrowUp} />
-                </button>
-            )}
         </div>
     );
-}
+};
 
-export default PublicTimeNestList; 
+export default MyLikedTimeNests;

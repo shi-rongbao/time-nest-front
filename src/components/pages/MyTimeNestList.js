@@ -11,6 +11,7 @@ import LikeIcon from "../../assets/images/like-icon.png";
 import FriendIcon from "../../assets/images/friend-icon.png";
 import MessageIcon from "../../assets/images/message-icon.png";
 import { getCachedAvatar, cacheAvatar } from "../../utils/cacheUtils";
+import Banner from "../layout/Banner";
 
 // Toast 通知组件
 const Toast = ({ message, type, onClose }) => {
@@ -72,6 +73,101 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
   );
 };
 
+// 消息弹窗组件
+const MessageModal = ({ isOpen, onClose, unreadList, onProcessRequest, onTimeNestNotice, msgLoadingId }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ maxWidth: 400, width: '95%' }}>
+        <h3 style={{ margin: '0 0 1rem 0', color: '#1976d2' }}>通知中心</h3>
+        {unreadList.length === 0 ? (
+          <div style={{ color: '#888', padding: '2rem 0', textAlign: 'center' }}>暂无新通知</div>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {unreadList.map(item => {
+              // 拾光纪解锁通知
+              if (item.noticeType === 0 || item.noticeType === 2) {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        「{item.timeNestTitle || '拾光纪'}」在刚刚解锁啦！快去查看吧！
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="confirm-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, true)}
+                      >去查看</button>
+                      <button className="cancel-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, false)}
+                      >晚点再看</button>
+                    </div>
+                  </li>
+                );
+              }
+              // 好友申请通知
+              else if (item.noticeType === 1) {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        {item.requestUserAccount}想添加你为好友，确认要添加吗？
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="confirm-button" style={{ minWidth: 70 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onProcessRequest(item, 1)}
+                      >接受</button>
+                      <button className="cancel-button" style={{ minWidth: 70 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onProcessRequest(item, 2)}
+                      >拒绝</button>
+                    </div>
+                  </li>
+                );
+              }
+              // 预留其他类型通知的扩展空间
+              else {
+                return (
+                  <li key={item.id} style={{ marginBottom: '1.2rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
+                      <span style={{ display: 'block', marginBottom: 6 }}>
+                        {item.title || '新通知'} (类型: {item.noticeType})
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {new Date(item.createTime).toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                      <button className="cancel-button" style={{ minWidth: 80 }}
+                        disabled={msgLoadingId === item.id}
+                        onClick={() => onTimeNestNotice(item, false)}
+                      >我知道了</button>
+                    </div>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        )}
+        <div className="modal-actions" style={{ marginTop: 16 }}>
+          <button className="cancel-button" onClick={onClose}>关闭</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MyTimeNestList = () => {
   const [nestList, setNestList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,8 +190,13 @@ const MyTimeNestList = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(getCachedAvatar() || "");
   const [hasUnread, setHasUnread] = useState(false);
+  const [unreadList, setUnreadList] = useState([]);
+  const [showMsgModal, setShowMsgModal] = useState(false);
+  const [msgLoadingId, setMsgLoadingId] = useState(null);
   
   const history = useHistory();
+  const pollingRef = useRef(null);
+  const enablePolling = useRef(true);
 
   // 使用apiCache进行缓存控制
   const apiCacheRef = useRef({});
@@ -180,14 +281,49 @@ const MyTimeNestList = () => {
   // 获取未读消息状态
   const fetchUnreadStatus = useCallback(async () => {
     try {
-      const response = await cachedFetch("/user/getUnreadNoticeList", {}, 30000);
-      if (response?.success) {
-        setHasUnread(response.data && response.data.length > 0);
+      console.log(`[通知系统] 发送请求: ${new Date().toLocaleTimeString()}`);
+      
+      // 使用专用的请求，避免被缓存或取消，确保每5秒总是尝试获取最新数据
+      const response = await fetch('/user/getUnreadNotifications', {
+        headers: {
+          'satoken': localStorage.getItem('satoken') || '',
+          'Content-Type': 'application/json'
+        },
+        // 添加随机参数避免浏览器缓存
+        cache: 'no-cache',
+        credentials: 'same-origin'
+      });
+      
+      // 检查响应状态
+      if (!response.ok) {
+        console.error('通知请求失败:', response.status, response.statusText);
+        return;
+      }
+      
+      // 解析数据
+      const res = await response.json();
+      
+      // 更新通知状态
+      if (res.success && Array.isArray(res.data)) {
+        const hasNewNotifications = res.data.length > 0 && 
+          (unreadList.length !== res.data.length || 
+           JSON.stringify(unreadList) !== JSON.stringify(res.data));
+          
+        if (hasNewNotifications) {
+          console.log('收到新通知:', res.data.length);
+        }
+        
+        setUnreadList(res.data);
+        setHasUnread(res.data.length > 0);
+      } else {
+        setUnreadList([]);
+        setHasUnread(false);
       }
     } catch (error) {
-      console.error("获取未读消息状态出错:", error);
+      // 只记录错误但不中断轮询
+      console.error("获取未读消息出错:", error);
     }
-  }, [cachedFetch]);
+  }, []);
 
   // 获取用户信息
   const fetchUserInfo = useCallback(async () => {
@@ -286,16 +422,22 @@ const MyTimeNestList = () => {
 
   // 处理消息点击
   const handleMsgClick = () => {
-    // 跳转回首页并显示消息弹窗
-    history.push({
-      pathname: '/home',
-      state: { showMsgModal: true }
-    });
+    setShowMsgModal(true);
+  };
+
+  // 关闭消息弹窗
+  const handleCloseMsgModal = () => {
+    setShowMsgModal(false);
   };
 
   // 处理头像点击
   const handleAvatarClick = () => {
     history.push('/user-profile');
+  };
+
+  // 处理点赞列表点击
+  const handleLikedListClick = () => {
+    history.push('/my-liked-nests');
   };
 
   // 处理筛选条件变更
@@ -305,6 +447,45 @@ const MyTimeNestList = () => {
       [field]: value
     }));
   };
+
+  // 设置轮询获取未读消息
+  useEffect(() => {
+    // 初始加载
+    fetchUnreadStatus();
+    
+    // 设置轮询
+    const setupPolling = () => {
+      pollingRef.current = setInterval(() => {
+        if (enablePolling.current) {
+          fetchUnreadStatus();
+        }
+      }, 5000); // 每5秒轮询一次
+    };
+    
+    setupPolling();
+    
+    // 页面可见性变化处理
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        enablePolling.current = true;
+        fetchUnreadStatus(); // 页面变为可见时立即获取一次
+        if (!pollingRef.current) {
+          setupPolling();
+        }
+      } else {
+        enablePolling.current = false;
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchUnreadStatus]);
 
   // 加载更多数据
   const loadMore = () => {
@@ -392,92 +573,126 @@ const MyTimeNestList = () => {
     });
   };
 
-  return (
-    <div className="time-nest-list-container">
-      {/* Top Navigation Bar */}
-      <div className="nav-bar">
-        <div className="nav-tabs">
-          <button
-            className="nav-tab"
-            onClick={() => history.push('/home')}
-          >
-            首页
-          </button>
-          <button
-            className="nav-tab active"
-          >
-            我发布的拾光纪条目
-          </button>
-            <button 
-            className="nav-tab"
-            onClick={() => history.push('/public-time-nest-list')}
-            >
-            公开的拾光纪条目
-            </button>
-          </div>
-          
-        <div className="user-actions">
-          <div className="action-icon-wrapper">
-            <img src={LikeIcon || "/placeholder.svg"} alt="点赞过的内容" title="点赞过的内容" className="action-icon" />
-          </div>
-          <div className="action-icon-wrapper">
-            <img src={FriendIcon || "/placeholder.svg"} alt="好友列表" title="好友列表" className="action-icon" onClick={handleFriendListClick} style={{ cursor: 'pointer' }} />
-          </div>
-          <div className="action-icon-wrapper">
-            <img src={MessageIcon || "/placeholder.svg"} alt="我的消息" title="我的消息" className="action-icon" onClick={handleMsgClick} style={{ cursor: 'pointer' }} />
-            {hasUnread && <span className="msg-dot"></span>}
-          </div>
-          <div className="action-icon-wrapper">
-            <img
-              src={avatarUrl || "https://via.placeholder.com/40"}
-              alt="个人中心"
-              title="个人中心"
-              className="action-icon"
-              onClick={handleAvatarClick}
-              style={{ cursor: 'pointer' }}
-              onError={(e) => {
-                e.target.onerror = null
-                e.target.src = "https://via.placeholder.com/40"
-              }}
-            />
-          </div>
-        </div>
-      </div>
+  // 处理拾光纪解锁通知
+  const handleTimeNestNotice = useCallback(async (item, viewAction = false) => {
+    setMsgLoadingId(item.id);
+    try {
+      // 标记通知为已读
+      const res = await cachedFetch(`/user/markAsRead?noticeId=${item.id}`, {}, 0); // 不缓存此请求
+      
+      if (!res.success) throw new Error(res.message || '标记已读失败');
+      
+      // 刷新未读消息
+      await fetchUnreadStatus();
+      
+      if (viewAction) {
+        // 跳转到拾光纪详情页面，使用noticeId作为查询参数
+        history.push({
+          pathname: `/time-nest-detail`,
+          state: { id: item.noticeId }
+        });
+        setShowMsgModal(false);
+      }
+      
+    } catch (e) {
+      showToast(e.message || '操作失败', 'error');
+    } finally {
+      setMsgLoadingId(null);
+    }
+  }, [cachedFetch, fetchUnreadStatus, history]);
+  
+  // 处理好友申请
+  const handleProcessRequest = useCallback(async (item, result) => {
+    setMsgLoadingId(item.id);
+    try {
+      // 1. 处理好友请求
+      const res1 = await cachedFetch('/user/processingFriendRequest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ friendRequestId: item.friendRequestsId, processingResult: result })
+      }, 0); // 不缓存POST请求
+      
+      if (!res1.success) throw new Error(res1.message || '操作失败');
+      
+      // 2. 标记消息已读
+      const res2 = await cachedFetch(`/user/markAsRead?noticeId=${item.id}`, {}, 0); // 不缓存此请求
+      
+      if (!res2.success) throw new Error(res2.message || '标记已读失败');
+      
+      // 3. 刷新未读消息
+      await fetchUnreadStatus();
+      
+      showToast('操作成功', 'success');
+    } catch (e) {
+      showToast(e.message || '操作失败', 'error');
+    } finally {
+      setMsgLoadingId(null);
+    }
+  }, [cachedFetch, fetchUnreadStatus]);
 
-      {/* Slogan */}
-      <div style={{ width: '100%', textAlign: 'center', margin: '10px 0 18px 0', color: '#888', fontSize: '0.98rem', letterSpacing: '0.5px' }}>
-        封存此刻，寄往未来  <span style={{ fontSize: '0.92rem', marginLeft: '0.5em' }}>Save the moment. Send it to the future.</span>
-        </div>
-        
-      <div className="time-nest-content">
-        {/* 筛选区域 */}
-        <div className="filters-section">
+  return (
+    <div className="time-nest-list">
+      {/* 使用 Banner 组件 */}
+      <Banner hasUnread={hasUnread} onMessageClick={handleMsgClick} />
+      
+      {/* Toast 通知 */}
+      {toast.show && (
+        <Toast 
+          message={toast.message}
+          type={toast.type}
+          onClose={closeToast}
+        />
+      )}
+      
+      {/* 确认对话框 */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmUnlockNest}
+        onCancel={cancelUnlockNest}
+      />
+      
+      {/* 消息弹窗 */}
+      <MessageModal
+        isOpen={showMsgModal}
+        onClose={handleCloseMsgModal}
+        unreadList={unreadList}
+        onProcessRequest={handleProcessRequest}
+        onTimeNestNotice={handleTimeNestNotice}
+        msgLoadingId={msgLoadingId}
+      />
+
+      <div className="page-header">
+        <h1>我发布的拾光纪</h1>
+        <div className="filters">
           <div className="filter-group">
-            <label>类型筛选:</label>
+            <label>类型：</label>
             <select 
               value={filters.nestType} 
               onChange={(e) => handleFilterChange('nestType', parseInt(e.target.value))}
             >
-              <option value={0}>全部类型</option>
-              <option value={1}>时光胶囊</option>
-              <option value={2}>邮件胶囊</option>
-              <option value={3}>图片胶囊</option>
+              <option value={0}>全部</option>
+              <option value={1}>胶囊</option>
+              <option value={2}>邮件</option>
+              <option value={3}>图片</option>
             </select>
           </div>
-          
           <div className="filter-group">
-            <label>状态筛选:</label>
+            <label>状态：</label>
             <select 
               value={filters.unlockedStatus} 
               onChange={(e) => handleFilterChange('unlockedStatus', parseInt(e.target.value))}
             >
-              <option value={2}>全部状态</option>
+              <option value={2}>全部</option>
               <option value={1}>已解锁</option>
               <option value={0}>未解锁</option>
             </select>
           </div>
         </div>
-        
+      </div>
+
+      <div className="time-nest-content">
         {/* 卡片式瀑布流 */}
         <div className="time-nest-grid-container">
           {loading && nestList.length === 0 ? (
@@ -536,24 +751,6 @@ const MyTimeNestList = () => {
         {/* 底部留白 */}
         <div className="footer-spacer"></div>
       </div>
-      
-      {/* 确认对话框 */}
-      <ConfirmModal 
-        isOpen={confirmModal.isOpen}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        onConfirm={confirmUnlockNest}
-        onCancel={cancelUnlockNest}
-      />
-      
-      {/* Toast通知 */}
-      {toast.show && (
-        <Toast 
-          message={toast.message}
-          type={toast.type}
-          onClose={closeToast}
-        />
-      )}
     </div>
   );
 };

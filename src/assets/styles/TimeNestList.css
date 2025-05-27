@@ -29,10 +29,63 @@ html, body, #root {
   overflow-x: hidden;
 }
 
-.time-nest-list-container {
-  width: 100%; /* 确保容器宽度为100% */
+/* 通用的页面布局样式 */
+.time-nest-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 页面头部样式统一 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px auto;
+  max-width: 1200px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* 内容区域样式统一 */
+.time-nest-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: visible;
+  padding: 0;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 0 20px; /* 修改padding：移除顶部padding，保留底部padding */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.time-nest-grid-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 以下为原有样式，保持不变 */
+.time-nest-list-container {
+  width: 100%; 
+  margin: 0 auto;
+  padding: 0 0 20px; 
   min-height: 100vh;
   background-color: #f8fafc;
   display: flex;
@@ -42,19 +95,11 @@ html, body, #root {
   overflow-y: visible;
 }
 
-.time-nest-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-y: visible;
-  padding: 0 20px; /* 将左右padding应用到这里 */
-}
-
 /* 确保页面内容区域填满整个容器 */
 #root, #app {
   min-height: 100vh;
   background-color: #f8fafc;
+  width: 100%;
 }
 
 /* 头部区域样式 */
@@ -67,15 +112,15 @@ html, body, #root {
   background-color: transparent;
   border-radius: 0;
   box-shadow: none;
-  min-height: 60px; /* 确保足够的高度 */
-  position: relative; /* 添加相对定位 */
+  min-height: 60px; 
+  position: relative; 
 }
 
 .back-button-container {
-  position: absolute; /* 使用绝对定位 */
+  position: absolute; 
   left: 0;
-  top: 50%; /* 垂直居中 */
-  transform: translateY(-50%); /* 垂直居中 */
+  top: 50%; 
+  transform: translateY(-50%); 
   margin: 0;
   padding: 0;
   height: auto;
@@ -83,16 +128,16 @@ html, body, #root {
 
 .page-title {
   text-align: center;
-  margin: 0 auto; /* 水平居中 */
+  margin: 0 auto; 
   color: var(--primary-color, #4a90e2);
   font-size: 1.8rem;
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   line-height: 1.2;
-  position: absolute; /* 使用绝对定位 */
+  position: absolute; 
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%); /* 水平和垂直居中 */
+  transform: translate(-50%, -50%); 
   width: auto;
   height: auto;
 }
@@ -384,4 +429,4 @@ html, body, #root {
 .footer-spacer {
   flex-grow: 1;
   min-height: 40px;
-} 
+}
