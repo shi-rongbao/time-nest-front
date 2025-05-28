@@ -168,6 +168,9 @@ const MyLikedTimeNests = () => {
     // 使用apiCache进行缓存控制
     const apiCacheRef = useRef({});
 
+    // 防抖控制
+    const loadingRef = useRef(false);
+
     // 显示通知的函数
     const showToast = (message, type = 'info') => {
       setToast({ show: true, message, type });
@@ -184,6 +187,7 @@ const MyLikedTimeNests = () => {
         setLoading(true);
         setError(null);
         try {
+            console.log(`加载点赞列表页面: ${currentPage}, 是否加载更多: ${isLoadMore}`);
             const response = await api.fetchWithToken('/timeNest/queryMyLikeTimeNestList', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -208,12 +212,24 @@ const MyLikedTimeNests = () => {
         } finally {
             setLoading(false);
         }
-    }, [loading, hasMore]);
+    }, []);
     
     // 加载更多数据函数
     const loadMore = useCallback(() => {
-        if (loading || !hasMore) return;
-        loadMoreNests(page, true);
+        // 使用ref来跟踪加载状态，避免闭包问题
+        if (loading || !hasMore || loadingRef.current) return;
+        
+        // 标记为正在加载
+        loadingRef.current = true;
+        
+        // 使用setTimeout来模拟防抖
+        setTimeout(() => {
+            loadMoreNests(page, true);
+            // 200ms后重置加载状态标记
+            setTimeout(() => {
+                loadingRef.current = false;
+            }, 200);
+        }, 0);
     }, [loading, hasMore, page, loadMoreNests]);
 
     // 实现带缓存的API调用
@@ -357,26 +373,40 @@ const MyLikedTimeNests = () => {
     useEffect(() => {
         // 如果内容不足以撑满页面且有更多数据可加载，自动加载更多
         const checkContentHeight = () => {
+            // 只有当页面首次加载完成后，且内容高度不足以撑满页面时才自动加载更多
             if (
                 !loading && 
                 hasMore && 
                 document.documentElement.offsetHeight <= window.innerHeight &&
-                nests.length > 0
+                nests.length > 0 && 
+                nests.length < PAGE_SIZE * 2 // 限制自动加载的次数，避免无限循环
             ) {
+                console.log('内容高度不足，自动加载更多');
                 loadMore();
             }
         };
         
-        // 在内容加载后检查
-        checkContentHeight();
+        // 在内容加载后检查，使用setTimeout确保DOM已更新
+        const timer = setTimeout(checkContentHeight, 300);
         
         // 窗口大小变化时也检查
-        window.addEventListener('resize', checkContentHeight);
-        return () => window.removeEventListener('resize', checkContentHeight);
+        const resizeHandler = () => {
+            if (timer) clearTimeout(timer);
+            setTimeout(checkContentHeight, 300);
+        };
+        
+        window.addEventListener('resize', resizeHandler);
+        return () => {
+            window.removeEventListener('resize', resizeHandler);
+            if (timer) clearTimeout(timer);
+        };
     }, [nests, loading, hasMore, loadMore]);
 
     // 监听滚动事件，实现无限滚动和返回顶部按钮
     useEffect(() => {
+        // 添加节流函数，防止频繁触发
+        let scrollTimer = null;
+        
         const handleScroll = () => {
             // 显示/隐藏返回顶部按钮
             if (window.pageYOffset > 300) {
@@ -385,29 +415,44 @@ const MyLikedTimeNests = () => {
                 setShowBackToTop(false);
             }
             
-            // 无限滚动加载
-            if (
-                window.innerHeight + document.documentElement.scrollTop >=
-                document.documentElement.offsetHeight - 300 &&
-                hasMore &&
-                !loading
-            ) {
-                loadMore();
-            }
+            // 使用节流控制滚动加载的频率
+            if (scrollTimer) return;
+            
+            scrollTimer = setTimeout(() => {
+                // 无限滚动加载 - 只有当没有正在加载且还有更多数据时才触发
+                if (
+                    !loading && 
+                    hasMore && 
+                    window.innerHeight + document.documentElement.scrollTop >=
+                    document.documentElement.offsetHeight - 300
+                ) {
+                    loadMore();
+                }
+                scrollTimer = null;
+            }, 200); // 200ms的节流时间
         };
         
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (scrollTimer) clearTimeout(scrollTimer);
+        };
     }, [hasMore, loading, loadMore]);
 
+    // 优化IntersectionObserver的实现
     const lastNestElementRef = useCallback(node => {
         if (loading) return;
         if (observer.current) observer.current.disconnect();
+        
         observer.current = new IntersectionObserver(entries => {
+            // 只有当元素可见、有更多数据且不在加载中时才触发加载
             if (entries[0].isIntersecting && hasMore && !loading) {
                 loadMore();
             }
+        }, {
+            rootMargin: '0px 0px 300px 0px' // 提前300px触发
         });
+        
         if (node) observer.current.observe(node);
     }, [loading, hasMore, loadMore]);
     
@@ -575,23 +620,35 @@ const MyLikedTimeNests = () => {
                             })}
                             
                             {/* 加载更多指示器 */}
-                            {loading && (
-                                <div className="loading-indicator">
-                                    <FontAwesomeIcon icon={faSpinner} spin /> 加载更多...
+                            {loading && nests.length > 0 && (
+                                <div className="loading-indicator" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px 0' }}>
+                                    <FontAwesomeIcon icon={faSpinner} spin /> 
+                                    <span style={{ marginLeft: '10px' }}>正在加载更多...</span>
                                 </div>
                             )}
                             
                             {/* 没有更多数据提示 */}
                             {!loading && !hasMore && nests.length > 0 && (
-                                <div className="no-more-data">
+                                <div className="no-more-data" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px 0', color: '#888' }}>
                                     没有更多拾光纪了~
                                 </div>
                             )}
                             
-                            {/* 手动加载更多按钮 */}
-                            {hasMore && !loading && (
-                                <div className="load-more-container">
-                                    <button className="load-more-button" onClick={loadMore}>
+                            {/* 手动加载更多按钮 - 只在非加载状态且还有更多数据时显示 */}
+                            {hasMore && !loading && nests.length > 0 && (
+                                <div className="load-more-container" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px 0' }}>
+                                    <button 
+                                        className="load-more-button" 
+                                        onClick={loadMore}
+                                        style={{ 
+                                            padding: '8px 20px', 
+                                            background: '#4a90e2', 
+                                            color: 'white', 
+                                            border: 'none', 
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
                                         加载更多
                                     </button>
                                 </div>

@@ -725,7 +725,7 @@ const Home = () => {
       nestType: nestTypeMap[capsuleType],
       nestTitle: title,
       nestContent: content,
-      publicStatus: isPublic ? 1 : 2,
+      publicStatus: isPublic ? 1 : 0,
       unlockTime: unlockDate,
       friendIdList: selectedFriendIds,
       unlockToUserIdList: selectedUnlockFriendIds

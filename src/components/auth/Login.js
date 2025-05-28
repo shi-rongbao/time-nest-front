@@ -3,6 +3,7 @@ import '../../assets/styles/LoginRegister.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
+import api from '../../services/api'; // 导入API服务
 
 const Login = () => {
     const [userAccount, setUserAccount] = useState('');
@@ -11,20 +12,15 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = '/user/login';
         try {
-            const response = await fetch(url, {
+            // 使用API服务发送请求
+            const data = await api.fetchWithToken('/user/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({
                     userAccount,
                     password
                 }),
             });
-
-            const data = await response.json();
 
             if (data.code !== 200) {
                 console.error(`请求失败，错误信息: ${data.message}`);
